@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber & Dev Routine Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            50: '#ecfeff',
+                            100: '#cffafe',
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            900: '#164e63',
+                        },
+                        darkbg: '#0b0f19',
+                        cardbg: '#111827',
+                        borderbg: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Consolas', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .font-mono-code {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Dedicated Print Stylesheet for Save as PDF / Print */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #printableVisualReportCard, #printableVisualReportCard * {
+                visibility: visible !important;
+            }
+            #printableVisualReportCard {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background-color: #0b0f19 !important;
+                color: #ffffff !important;
+                padding: 24px !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-darkbg text-gray-100 flex flex-col pb-12">
+
+    <!-- Shared Link Read-Only Banner -->
+    <div id="sharedBanner" class="hidden bg-gradient-to-r from-cyan-950 via-blue-950 to-purple-950 border-b border-cyan-500/40 py-2.5 px-4 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm gap-2">
+            <div class="flex items-center space-x-2 text-cyan-200">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span><strong>Shared Team Report:</strong> Viewing report for <span id="sharedDate" class="font-mono font-bold text-white"></span></span>
+            </div>
+            <button onclick="exitSharedView()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3 py-1 rounded-lg text-xs transition shadow-md">
+                Create / Edit My Own Routine
+            </button>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="border-b border-gray-800 bg-gray-900/80 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        <span>CYBER OPS & DEV ROUTINE HUB</span>
+                        <span class="text-xs font-mono font-normal bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-2 py-0.5 rounded-full">v4.0 Pro</span>
+                    </h1>
+                    <p id="formattedHeaderDate" class="text-xs text-gray-400 font-mono">Loading date...</p>
+                </div>
+            </div>
+
+            <!-- Main View Switcher Tabs -->
+            <div class="flex items-center bg-gray-950 p-1 rounded-xl border border-gray-800">
+                <button id="tabBtnDaily" onclick="switchMainView('daily')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Daily Routine</span>
+                </button>
+                <button id="tabBtnWeekly" onclick="switchMainView('weekly')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span>Weekly View</span>
+                </button>
+                <button id="tabBtnMonthly" onclick="switchMainView('monthly')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>Monthly View</span>
+                </button>
+            </div>
+
+            <!-- Controls: Date Picker & Utility Buttons -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-center bg-gray-800 border border-gray-700 rounded-lg p-1">
+                    <span class="text-xs text-gray-400 pl-2 pr-1 font-mono">Date:</span>
+                    <input type="date" id="datePicker" onchange="changeDate(this.value)" class="bg-gray-900 border border-gray-700 text-cyan-400 text-xs font-mono rounded px-2 py-1 focus:outline-none focus:border-cyan-500">
+                </div>
+                
+                <button onclick="loadSampleWeekAndMonth()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span>Load Demo Week/Month</span>
+                </button>
+
+                <button onclick="openResetModal()" class="px-3 py-1.5 bg-gray-800 hover:bg-rose-950/60 border border-gray-700 hover:border-rose-800/50 text-gray-400 hover:text-rose-300 rounded-lg text-xs font-medium transition">
+                    Reset Day
+                </button>
+
+                <button onclick="openReportModal()" class="px-4 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-lg text-xs transition shadow-md shadow-cyan-500/10 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Visual Report Card</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex-grow">
+
+        <!-- ==================== VIEW 1: DAILY ROUTINE ==================== -->
+        <div id="viewDaily" class="space-y-6">
+
+            <!-- Sunday Rest & Planning Banner (Visible on Sundays) -->
+            <div id="sundayRestBanner" class="hidden bg-gradient-to-r from-purple-950 via-slate-900 to-indigo-950 border border-purple-500/40 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="p-3 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-xl">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        </div>
+                        <div>
+                            <span class="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">SUNDAY REST & STRATEGIC RECOVERY</span>
+                            <h2 class="text-lg font-bold text-white mt-0.5">Time to Recharge, Review & Plan the Coming Week</h2>
+                            <p class="text-xs text-gray-300 mt-1">Sundays are dedicated to physical recovery, mental reflection, and setting high-impact goals for the upcoming week.</p>
+                        </div>
+                    </div>
+                    <button onclick="focusSundayPlanner()" class="px-4 py-2 bg-purple-500 hover:bg-purple-400 text-slate-950 font-bold text-xs rounded-lg transition shadow-lg flex-shrink-0">
+                        Set Next Week Goals
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Executive Stats Banner -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Daily Completion</span>
+                        <span id="statScorePct" class="text-sm font-bold font-mono text-cyan-400">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden mt-2">
+                        <div id="statProgressBar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full transition-all duration-500 w-0"></div>
+                    </div>
+                    <p id="statTaskRatio" class="text-xs text-gray-400 mt-2 font-mono">0 of 0 tasks completed</p>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block mb-1">Primary Discipline</span>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-sm font-semibold text-white">Academics & Cyber Security</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">17.5 Structured Daily Hours</p>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-purple-400 uppercase tracking-wider block mb-1">Cyber Block Time</span>
+                    <div class="text-sm font-bold font-mono text-purple-300 mt-1">20:00 - 23:30 (3.5 Hrs)</div>
+                    <p class="text-xs text-gray-400 mt-2">PortSwigger Labs & Attack Pentesting</p>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-amber-400 uppercase tracking-wider block mb-1">Dev & AI Block Time</span>
+                    <div class="text-sm font-bold font-mono text-amber-300 mt-1">16:00 - 20:00 (4.0 Hrs)</div>
+                    <p class="text-xs text-gray-400 mt-2">Web Apps & AI Model Engineering</p>
+                </div>
+            </div>
+
+            <!-- 2-Column Responsive Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- LEFT COLUMN: Time Block Feeder (8 cols) -->
+                <div class="lg:col-span-8 space-y-6">
+
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-gray-200 tracking-wide flex items-center gap-2">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>SCHEDULED ROUTINE BLOCKS</span>
+                        </h2>
+                        <span class="text-xs text-gray-400 font-mono">Feed your daily activities into each block</span>
+                    </div>
+
+                    <!-- BLOCK 1: Morning Reflection -->
+                    <div class="glass-panel rounded-xl border border-gray-800 p-5 transition hover:border-gray-700">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-800 gap-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-amber-400 font-semibold uppercase tracking-wider">06:00 - 06:15</span>
+                                    <h3 class="text-sm font-bold text-white">Morning Wake-up & 15-Min Reflection</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="badge-b1" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">0/0 Done</span>
+                            </div>
+                        </div>
+                        <div id="tasks-b1" class="space-y-2.5 mb-4"></div>
+                        <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                            <button onclick="openAddTaskModal('b1')" class="text-xs bg-gray-800 hover:bg-gray-700 text-cyan-400 px-3 py-1.5 rounded-lg font-mono flex items-center justify-center gap-1.5 border border-gray-700 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Reflection Goal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BLOCK 2: Academics & Personal Growth -->
+                    <div class="glass-panel rounded-xl border border-gray-800 p-5 transition hover:border-gray-700">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-800 gap-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-blue-400 font-semibold uppercase tracking-wider">07:00 - 16:00</span>
+                                    <h3 class="text-sm font-bold text-white">University Studies & Personal Growth</h3>
+                                    <p class="text-xs text-gray-400">Assignments, Books, Speech/Communication audio, Exam prep, Research</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="badge-b2" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">0/0 Done</span>
+                            </div>
+                        </div>
+                        <div id="tasks-b2" class="space-y-2.5 mb-4"></div>
+                        <div class="pt-2 flex flex-wrap gap-2">
+                            <button onclick="openAddTaskModal('b2')" class="text-xs bg-gray-800 hover:bg-gray-700 text-cyan-400 px-3 py-1.5 rounded-lg font-mono flex items-center gap-1.5 border border-gray-700 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Academic Task
+                            </button>
+                            <button onclick="addPresetTask('b2', 'University Coursework / Assignment Prep')" class="text-xs bg-gray-800/60 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ Assignment</button>
+                            <button onclick="addPresetTask('b2', 'Exam/Test Revision Chapter')" class="text-xs bg-gray-800/60 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ Exam Prep</button>
+                            <button onclick="addPresetTask('b2', 'Read Book Chapter / Speech Audio (Communication)')" class="text-xs bg-gray-800/60 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ Growth & Speech</button>
+                        </div>
+                    </div>
+
+                    <!-- BLOCK 3: Dev & AI Innovation -->
+                    <div class="glass-panel rounded-xl border border-gray-800 p-5 transition hover:border-gray-700">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-800 gap-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider">16:00 - 20:00</span>
+                                    <h3 class="text-sm font-bold text-white">Engineering & AI Innovation Block</h3>
+                                    <p class="text-xs text-gray-400">Web Apps, AI models, coding sprints, team project tasks</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="badge-b3" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">0/0 Done</span>
+                            </div>
+                        </div>
+                        <div id="tasks-b3" class="space-y-2.5 mb-4"></div>
+                        <div class="pt-2 flex flex-wrap gap-2">
+                            <button onclick="openAddTaskModal('b3')" class="text-xs bg-gray-800 hover:bg-gray-700 text-cyan-400 px-3 py-1.5 rounded-lg font-mono flex items-center gap-1.5 border border-gray-700 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Project Task
+                            </button>
+                            <button onclick="addPresetTask('b3', 'Frontend / Full-stack Feature Implementation')" class="text-xs bg-gray-800/60 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ Fullstack Code</button>
+                            <button onclick="addPresetTask('b3', 'AI Model Integration / Scripting')" class="text-xs bg-gray-800/60 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ AI Task</button>
+                        </div>
+                    </div>
+
+                    <!-- BLOCK 4: Cybersecurity & Pentesting -->
+                    <div class="glass-panel rounded-xl border border-cyan-900/40 p-5 transition hover:border-cyan-800/60 bg-gradient-to-b from-gray-900 via-slate-900 to-gray-900">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-800 gap-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-purple-400 font-semibold uppercase tracking-wider">20:00 - 23:30</span>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>Cybersecurity, Pentesting & PortSwigger Labs</span>
+                                        <span class="text-[10px] bg-purple-950 text-purple-300 border border-purple-800 px-1.5 py-0.5 rounded">Core Discipline</span>
+                                    </h3>
+                                    <p class="text-xs text-gray-400">Offensive Security, Vulnerability Analysis, Web Hacking</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="badge-b4" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">0/0 Done</span>
+                            </div>
+                        </div>
+                        <div id="tasks-b4" class="space-y-2.5 mb-4"></div>
+                        <div class="pt-2 flex flex-wrap gap-2">
+                            <button onclick="openAddTaskModal('b4')" class="text-xs bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 border border-purple-700 px-3 py-1.5 rounded-lg font-mono flex items-center gap-1.5 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Cyber Target
+                            </button>
+                            <button onclick="addPresetTask('b4', 'PortSwigger Web Security Academy Reading & Lab Target')" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ PortSwigger Lab</button>
+                            <button onclick="addPresetTask('b4', 'Network Recon / Burp Suite Attack Methodology')" class="text-xs bg-gray-800/80 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg font-mono border border-gray-700">+ Burp / Recon</button>
+                        </div>
+                    </div>
+
+                    <!-- BLOCK 5: End of Day Review -->
+                    <div class="glass-panel rounded-xl border border-gray-800 p-5 transition hover:border-gray-700">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-800 gap-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-indigo-400 font-semibold uppercase tracking-wider">23:30 - 00:00</span>
+                                    <h3 class="text-sm font-bold text-white">End-of-Day Review & Next Day Planning</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span id="badge-b5" class="text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">0/0 Done</span>
+                            </div>
+                        </div>
+                        <div id="tasks-b5" class="space-y-2.5 mb-4"></div>
+                        <div class="pt-2">
+                            <button onclick="openAddTaskModal('b5')" class="text-xs bg-gray-800 hover:bg-gray-700 text-cyan-400 px-3 py-1.5 rounded-lg font-mono flex items-center justify-center gap-1.5 border border-gray-700 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add Review Step
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: Qualitative Analysis & Tomorrow's Plan (4 cols) -->
+                <div class="lg:col-span-4 space-y-6">
+
+                    <!-- Sunday Planner Section (When active date is Sunday) -->
+                    <div id="sundayGoalsSection" class="glass-panel rounded-xl border border-purple-900/50 p-5 bg-gradient-to-b from-gray-900 to-purple-950/20">
+                        <h3 class="text-sm font-bold text-purple-300 flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            <span>Next Week Main Goals Planner</span>
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-3">Define 3-5 core objectives for the upcoming week (Academics, Dev, Cyber).</p>
+                        <textarea id="fieldNextWeekGoals" oninput="saveWeeklyGoalsFromSunday()" rows="5" placeholder="1. Master PortSwigger SQLi & XSS labs&#10;2. Finish Operating Systems Assignment #3&#10;3. Deploy AI API to Cloudflare Workers" class="w-full bg-gray-950 border border-gray-800 focus:border-purple-500 rounded-lg p-3 text-xs text-gray-200 placeholder-gray-600 focus:outline-none font-mono leading-relaxed resize-y"></textarea>
+                    </div>
+
+                    <!-- Blockers & Root Causes -->
+                    <div class="glass-panel rounded-xl border border-rose-900/30 p-5 bg-gradient-to-b from-gray-900 to-rose-950/10">
+                        <h3 class="text-sm font-bold text-rose-300 flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>What didn't happen & Why?</span>
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-3">Identify unachieved items, bottlenecks, lab roadblocks, or lost time.</p>
+                        <textarea id="fieldBlockers" oninput="saveCurrentData()" rows="4" placeholder="e.g. Spent extra 1 hr debugging SQL injection lab payload. Couldn't finish chapter 4 of communication book..." class="w-full bg-gray-950 border border-gray-800 focus:border-rose-500 rounded-lg p-3 text-xs text-gray-200 placeholder-gray-600 focus:outline-none font-sans leading-relaxed resize-y"></textarea>
+                    </div>
+
+                    <!-- Corrective Action Plan -->
+                    <div class="glass-panel rounded-xl border border-amber-900/30 p-5 bg-gradient-to-b from-gray-900 to-amber-950/10">
+                        <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Action Plan & Remedies</span>
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-3">How will you adapt or resolve these bottlenecks?</p>
+                        <textarea id="fieldActionPlan" oninput="saveCurrentData()" rows="3" placeholder="e.g. Allocate 30 mins to read PortSwigger theoretical cheatsheet before attempting the next lab script." class="w-full bg-gray-950 border border-gray-800 focus:border-amber-500 rounded-lg p-3 text-xs text-gray-200 placeholder-gray-600 focus:outline-none font-sans leading-relaxed resize-y"></textarea>
+                    </div>
+
+                    <!-- Tomorrow's Top Priorities -->
+                    <div class="glass-panel rounded-xl border border-cyan-900/30 p-5 bg-gradient-to-b from-gray-900 to-cyan-950/10">
+                        <h3 class="text-sm font-bold text-cyan-300 flex items-center gap-2 mb-2">
+                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Tomorrow's Top Priorities</span>
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-3">Set 3-5 core objectives for the next morning start.</p>
+                        <textarea id="fieldTomorrow" oninput="saveCurrentData()" rows="4" placeholder="1. Submit AI project pull request&#10;2. Complete PortSwigger XSS Lab #3&#10;3. University Exam Prep: Operating Systems quiz" class="w-full bg-gray-950 border border-gray-800 focus:border-cyan-500 rounded-lg p-3 text-xs text-gray-200 placeholder-gray-600 focus:outline-none font-mono leading-relaxed resize-y"></textarea>
+                    </div>
+
+                    <!-- Generate Callout Card -->
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-cyan-950/60 to-blue-950/60 border border-cyan-700/40 text-center">
+                        <p class="text-xs text-cyan-300 mb-3">Ready to share your visual daily report with teammates?</p>
+                        <button onclick="openReportModal()" class="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-lg text-xs transition shadow-lg shadow-cyan-500/20">
+                            Open Visual Daily Report Card
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==================== VIEW 2: WEEKLY VIEW ==================== -->
+        <div id="viewWeekly" class="hidden space-y-6">
+            
+            <!-- Week Navigator Header Bar -->
+            <div class="glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="navigateWeek(-1)" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <div>
+                        <span class="text-xs font-mono text-cyan-400 font-semibold uppercase tracking-wider block">WEEKLY EXECUTIVE ROLLUP</span>
+                        <h2 id="weeklyDateRangeLabel" class="text-base font-bold text-white"></h2>
+                    </div>
+                    <button onclick="navigateWeek(1)" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="jumpToCurrentWeek()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-cyan-400 text-xs font-mono rounded-lg transition">
+                        This Week
+                    </button>
+                    <div class="bg-cyan-950/60 border border-cyan-800 px-4 py-2 rounded-xl text-right">
+                        <span id="weeklyOverallScore" class="text-2xl font-black font-mono text-emerald-400">0%</span>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Weekly Completion</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7-Day Interactive Strip (Mon to Sun) -->
+            <div id="weekly7DayStrip" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3"></div>
+
+            <!-- Weekly Summary Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block mb-1">Total Tasks Logged</span>
+                    <span id="weeklyStatTotalTasks" class="text-xl font-bold font-mono text-white">0</span>
+                    <p id="weeklyStatRatio" class="text-xs text-gray-400 mt-1 font-mono">0 completed</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-emerald-400 uppercase tracking-wider block mb-1">Active Days Logged</span>
+                    <span id="weeklyStatActiveDays" class="text-xl font-bold font-mono text-emerald-300">0 / 7</span>
+                    <p class="text-xs text-gray-400 mt-1">Days with routine activity</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-purple-400 uppercase tracking-wider block mb-1">Cyber Security & Labs</span>
+                    <span id="weeklyStatCyberTasks" class="text-xl font-bold font-mono text-purple-300">0</span>
+                    <p id="weeklyStatCyberPct" class="text-xs text-gray-400 mt-1 font-mono">0% completion rate</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-amber-400 uppercase tracking-wider block mb-1">Dev & AI Engineering</span>
+                    <span id="weeklyStatDevTasks" class="text-xl font-bold font-mono text-amber-300">0</span>
+                    <p id="weeklyStatDevPct" class="text-xs text-gray-400 mt-1 font-mono">0% completion rate</p>
+                </div>
+            </div>
+
+            <!-- SMART WEEKLY SUGGESTIONS ENGINE CARDS -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-gray-200 tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>SMART WEEKLY FEEDBACK & AUDIT ENGINE</span>
+                    </h3>
+                    <span class="text-xs font-mono text-gray-400">Algorithmic analysis of completion, balance & blockers</span>
+                </div>
+
+                <div id="weeklySuggestionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- Planned Goals for Next Week (Persisted from Sunday or direct edit) -->
+            <div class="glass-panel rounded-xl border border-purple-900/40 p-5 bg-gradient-to-b from-gray-900 to-purple-950/10">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-purple-300 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        <span>Next Week Main Goals (Set on Sunday)</span>
+                    </h3>
+                    <span class="text-xs text-gray-500 font-mono">Synced with Sunday planner</span>
+                </div>
+                <textarea id="weeklyViewNextWeekGoals" oninput="saveWeeklyGoalsFromView()" rows="4" placeholder="No main goals logged for next week yet. Set them here or during Sunday reflection..." class="w-full bg-gray-950 border border-gray-800 focus:border-purple-500 rounded-lg p-3 text-xs text-cyan-200 placeholder-gray-600 focus:outline-none font-mono leading-relaxed resize-y"></textarea>
+            </div>
+
+        </div>
+
+        <!-- ==================== VIEW 3: MONTHLY VIEW ==================== -->
+        <div id="viewMonthly" class="hidden space-y-6">
+
+            <!-- Month Navigator Header Bar -->
+            <div class="glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="navigateMonth(-1)" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <div>
+                        <span class="text-xs font-mono text-cyan-400 font-semibold uppercase tracking-wider block">MONTHLY ACCOMPLISHMENT MATRIX</span>
+                        <h2 id="monthlyDateLabel" class="text-base font-bold text-white"></h2>
+                    </div>
+                    <button onclick="navigateMonth(1)" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition border border-gray-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="jumpToCurrentMonth()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-cyan-400 text-xs font-mono rounded-lg transition">
+                        This Month
+                    </button>
+                    <div class="bg-cyan-950/60 border border-cyan-800 px-4 py-2 rounded-xl text-right">
+                        <span id="monthlyOverallScore" class="text-2xl font-black font-mono text-emerald-400">0%</span>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Monthly Completion</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Summary Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block mb-1">Total Monthly Tasks</span>
+                    <span id="monthlyStatTotalTasks" class="text-xl font-bold font-mono text-white">0</span>
+                    <p id="monthlyStatRatio" class="text-xs text-gray-400 mt-1 font-mono">0 completed</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-emerald-400 uppercase tracking-wider block mb-1">Consistency Streak</span>
+                    <span id="monthlyStatActiveDays" class="text-xl font-bold font-mono text-emerald-300">0 days</span>
+                    <p class="text-xs text-gray-400 mt-1">Days with routine activity</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-blue-400 uppercase tracking-wider block mb-1">Best Performing Week</span>
+                    <span id="monthlyStatBestWeek" class="text-xl font-bold font-mono text-blue-300">--</span>
+                    <p id="monthlyStatBestWeekPct" class="text-xs text-gray-400 mt-1 font-mono">--% completion</p>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800">
+                    <span class="text-xs font-medium text-amber-400 uppercase tracking-wider block mb-1">Discipline Balance</span>
+                    <span id="monthlyStatBalance" class="text-xl font-bold font-mono text-amber-300">Balanced</span>
+                    <p class="text-xs text-gray-400 mt-1">Academics vs Dev vs Cyber</p>
+                </div>
+            </div>
+
+            <!-- Month Calendar Grid -->
+            <div class="glass-panel rounded-2xl border border-gray-800 p-5 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-200 tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>MONTHLY CALENDAR INTENSITY MATRIX</span>
+                    </h3>
+                    <div class="flex items-center space-x-3 text-[11px] font-mono text-gray-400">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> 80%+</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span> 50-79%</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-purple-900 inline-block"></span> Sunday Rest</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-gray-800 inline-block"></span> Empty</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Weekday Headers -->
+                <div class="grid grid-cols-7 gap-2 text-center text-xs font-mono font-bold text-gray-400 border-b border-gray-800 pb-2">
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                    <div class="text-purple-400">Sun (Rest)</div>
+                </div>
+
+                <!-- Calendar Grid Container -->
+                <div id="monthlyCalendarGrid" class="grid grid-cols-7 gap-2"></div>
+            </div>
+
+            <!-- Week-by-Week Breakdown Cards -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-gray-200 tracking-wide flex items-center gap-2">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    <span>WEEK-BY-WEEK PROGRESS ROLLUP</span>
+                </h3>
+                <div id="monthlyWeekBreakdownContainer" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <!-- SMART MONTHLY SUGGESTIONS ENGINE CARDS -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-gray-200 tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <span>SMART MONTHLY STRATEGIC ADVISORY</span>
+                    </h3>
+                    <span class="text-xs font-mono text-gray-400">Long-term consistency & burnout audit</span>
+                </div>
+
+                <div id="monthlySuggestionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- CUSTOM TASK ADD / EDIT MODAL -->
+    <div id="taskModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 id="taskModalTitle" class="text-base font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Add Goal to Time Block</span>
+                </h3>
+                <button onclick="closeTaskModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Task / Objective Description</label>
+                    <input type="text" id="taskInputText" placeholder="e.g. PortSwigger SQLi Lab #2 / Read Chapter 4 of Communication Book" class="w-full bg-gray-950 border border-gray-800 focus:border-cyan-500 rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:outline-none font-sans">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Lab Notes / Commit Hash / Details (Optional)</label>
+                    <input type="text" id="taskInputNotes" placeholder="e.g. Solved via Python exploit script / Git commit: a9f81c2" class="w-full bg-gray-950 border border-gray-800 focus:border-cyan-500 rounded-lg p-3 text-xs text-cyan-400 placeholder-gray-600 focus:outline-none font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Status</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="selectModalStatus('pending')" id="statusBtnPending" class="py-2 text-xs font-mono rounded-lg border border-gray-700 bg-gray-950 text-gray-400 transition">TODO</button>
+                        <button type="button" onclick="selectModalStatus('partial')" id="statusBtnPartial" class="py-2 text-xs font-mono rounded-lg border border-amber-800/40 bg-amber-950/40 text-amber-300 transition">IN PROGRESS</button>
+                        <button type="button" onclick="selectModalStatus('completed')" id="statusBtnCompleted" class="py-2 text-xs font-mono rounded-lg border border-emerald-800/40 bg-emerald-950/40 text-emerald-300 transition">DONE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-2 border-t border-gray-800">
+                <button onclick="closeTaskModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-medium">Cancel</button>
+                <button onclick="saveTaskFromModal()" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-lg text-xs transition shadow-md">Save Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM RESET MODAL -->
+    <div id="confirmResetModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex items-center space-x-3 text-rose-400">
+                <div class="p-2 bg-rose-500/10 border border-rose-500/30 rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Reset Day Data?</h3>
+                    <p class="text-xs text-gray-400">This will clear today's tasks and qualitative notes.</p>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeResetModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs">Cancel</button>
+                <button onclick="confirmResetDayData()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg text-xs">Yes, Reset Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORT CARD MODAL -->
+    <div id="reportModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+            
+            <!-- Modal Header Controls -->
+            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between bg-gray-950 no-print">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Daily Visual Accomplishment Card</h3>
+                        <p id="reportModalDate" class="text-xs text-gray-400 font-mono"></p>
+                    </div>
+                </div>
+
+                <button onclick="closeReportModal()" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Printable Visual Report Card Content Container -->
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-900/90 text-sm">
+                <div id="printableVisualReportCard" class="space-y-6 p-2 rounded-xl">
+                    
+                    <!-- Top Performance Summary Card -->
+                    <div class="bg-gradient-to-r from-gray-950 via-slate-900 to-gray-950 p-5 rounded-xl border border-cyan-800/40 shadow-inner">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                    <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold">DAILY PERFORMANCE CARD</span>
+                                </div>
+                                <h2 class="text-xl font-black text-white tracking-tight">University Studies & Cyber Security Engineering</h2>
+                                <p id="visualReportMeta" class="text-xs text-gray-400 mt-1 font-mono"></p>
+                            </div>
+                            <div class="text-left sm:text-right bg-cyan-950/40 border border-cyan-800/50 px-4 py-2 rounded-xl">
+                                <span id="visualScoreGauge" class="text-3xl font-black font-mono text-emerald-400">0%</span>
+                                <p class="text-xs text-gray-400">Completion Score</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5 Time Block Breakdown Grid -->
+                    <div id="visualBlocksContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+                    <!-- Qualitative Analysis Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-950 p-4 rounded-xl border border-rose-900/30">
+                            <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>What didn't happen & Why?</span>
+                            </h4>
+                            <p id="visualBlockers" class="text-xs text-gray-300 whitespace-pre-wrap font-sans leading-relaxed"></p>
+                        </div>
+                        <div class="bg-gray-950 p-4 rounded-xl border border-amber-900/30">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span>Action Plan & Remedies</span>
+                            </h4>
+                            <p id="visualActionPlan" class="text-xs text-gray-300 whitespace-pre-wrap font-sans leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <!-- Tomorrow's Plan -->
+                    <div class="bg-gray-950 p-4 rounded-xl border border-cyan-900/40">
+                        <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Tomorrow's Priorities</span>
+                        </h4>
+                        <p id="visualTomorrow" class="text-xs font-mono text-cyan-200 whitespace-pre-wrap leading-relaxed"></p>
+                    </div>
+
+                    <!-- Card Branding Footer -->
+                    <div class="pt-2 border-t border-gray-800 flex justify-between items-center text-[10px] text-gray-500 font-mono">
+                        <span>Cyber Security & Engineering Routine Hub</span>
+                        <span id="cardTimestamp"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modal Action Footer Buttons -->
+            <div class="px-6 py-4 border-t border-gray-800 bg-gray-950 flex flex-wrap items-center justify-between gap-3 no-print">
+                <div class="flex items-center space-x-2">
+                    <button id="btnShareLink" onclick="shareVisualReportLink()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-lg text-xs transition flex items-center gap-2 shadow-md">
+                        <svg class="w-4 h-4 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        <span>Copy Short Share Link</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="downloadNativePNG()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold rounded-lg text-xs transition flex items-center gap-2 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span>Download PNG Image</span>
+                    </button>
+
+                    <button onclick="printReportCard()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 font-medium rounded-lg text-xs border border-gray-700 transition flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <span>Save as PDF / Print</span>
+                    </button>
+
+                    <button onclick="closeReportModal()" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg text-xs">
+                        Close
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- MAIN ENGINE SCRIPT -->
+    <script>
+        // Time Block Configurations
+        const BLOCK_CONFIGS = {
+            'b1': { title: 'Morning Wake-up & Reflection', time: '06:00 - 06:15', category: 'Mindset & Goal Setting', color: 'amber' },
+            'b2': { title: 'University Studies & Personal Growth', time: '07:00 - 16:00', category: 'Academics & Life', color: 'blue' },
+            'b3': { title: 'Engineering & AI Innovation Block', time: '16:00 - 20:00', category: 'Dev & Projects', color: 'emerald' },
+            'b4': { title: 'Cybersecurity, Pentesting & PortSwigger', time: '20:00 - 23:30', category: 'Cyber Ops', color: 'purple' },
+            'b5': { title: 'End-of-Day Review & Tomorrow Planning', time: '23:30 - 00:00', category: 'Review & Wrapup', color: 'indigo' }
+        };
+
+        // Application State
+        window.currentView = 'daily';
+        window.currentDate = getTodayDateString();
+        window.activeWeekOffset = 0;
+        window.activeMonthOffset = 0;
+        window.appData = {};
+        window.isSharedMode = false;
+
+        // Modal State
+        window.modalTargetBlock = 'b1';
+        window.modalEditIndex = null;
+        window.modalSelectedStatus = 'pending';
+
+        // Initialization
+        window.addEventListener('load', () => {
+            const hasSharedData = checkAndLoadSharedUrl();
+            if (!hasSharedData) {
+                document.getElementById('datePicker').value = window.currentDate;
+                loadDateData(window.currentDate);
+            }
+        });
+
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatHeaderDateDisplay(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const formatted = d.toLocaleDateString('en-US', options);
+            const isSun = d.getDay() === 0;
+            return isSun ? `${formatted} • Sunday Rest & Planning` : formatted;
+        }
+
+        function createEmptyDayStructure(dateStr) {
+            return {
+                date: dateStr,
+                blocks: {
+                    b1: [{ id: '1', text: 'Wake up at 06:00 AM & 15 mins reflection', status: 'completed', notes: 'Reflected on daily goals.' }],
+                    b2: [
+                        { id: '2', text: 'University Course Lectures & Assignments', status: 'pending', notes: '' },
+                        { id: '3', text: 'Read book chapter (Personal Growth / Communication)', status: 'pending', notes: '' },
+                        { id: '4', text: 'Listen to speech audio / life skills podcast', status: 'pending', notes: '' }
+                    ],
+                    b3: [
+                        { id: '5', text: 'Web Dev & AI project coding sprint', status: 'pending', notes: '' },
+                        { id: '6', text: 'Project commits & team feature tasks', status: 'pending', notes: '' }
+                    ],
+                    b4: [
+                        { id: '7', text: 'PortSwigger Web Security Academy labs', status: 'pending', notes: '' },
+                        { id: '8', text: 'Pentesting methodology & attack labs', status: 'pending', notes: '' }
+                    ],
+                    b5: [
+                        { id: '9', text: 'Check daily goals accomplished vs unaccomplished', status: 'pending', notes: '' },
+                        { id: '10', text: 'Compile visual report & set tomorrow priorities', status: 'pending', notes: '' }
+                    ]
+                },
+                blockers: '',
+                actionPlan: '',
+                tomorrowPlan: ''
+            };
+        }
+
+        function loadDateData(dateStr) {
+            window.currentDate = dateStr;
+            document.getElementById('formattedHeaderDate').innerText = formatHeaderDateDisplay(dateStr);
+            
+            const storageKey = `cyber_routine_${dateStr}`;
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved) {
+                    window.appData = JSON.parse(saved);
+                } else {
+                    window.appData = createEmptyDayStructure(dateStr);
+                }
+            } catch (e) {
+                console.warn('LocalStorage access warning:', e);
+                window.appData = createEmptyDayStructure(dateStr);
+            }
+
+            renderCurrentView();
+        }
+
+        window.saveCurrentData = function() {
+            if (window.isSharedMode) return;
+            window.appData.blockers = document.getElementById('fieldBlockers').value;
+            window.appData.actionPlan = document.getElementById('fieldActionPlan').value;
+            window.appData.tomorrowPlan = document.getElementById('fieldTomorrow').value;
+
+            try {
+                const storageKey = `cyber_routine_${window.currentDate}`;
+                localStorage.setItem(storageKey, JSON.stringify(window.appData));
+            } catch (e) {
+                console.warn('LocalStorage save failed:', e);
+            }
+            updateDailyStats();
+        };
+
+        // VIEW SWITCHER ENGINE
+        window.switchMainView = function(viewName) {
+            window.currentView = viewName;
+            
+            document.getElementById('viewDaily').classList.add('hidden');
+            document.getElementById('viewWeekly').classList.add('hidden');
+            document.getElementById('viewMonthly').classList.add('hidden');
+
+            const btnD = document.getElementById('tabBtnDaily');
+            const btnW = document.getElementById('tabBtnWeekly');
+            const btnM = document.getElementById('tabBtnMonthly');
+
+            btnD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition flex items-center gap-1.5";
+            btnW.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition flex items-center gap-1.5";
+            btnM.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-white transition flex items-center gap-1.5";
+
+            if (viewName === 'daily') {
+                document.getElementById('viewDaily').classList.remove('hidden');
+                btnD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md";
+                renderDailyView();
+            } else if (viewName === 'weekly') {
+                document.getElementById('viewWeekly').classList.remove('hidden');
+                btnW.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md";
+                renderWeeklyView();
+            } else if (viewName === 'monthly') {
+                document.getElementById('viewMonthly').classList.remove('hidden');
+                btnM.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md";
+                renderMonthlyView();
+            }
+        };
+
+        function renderCurrentView() {
+            if (window.currentView === 'daily') renderDailyView();
+            else if (window.currentView === 'weekly') renderWeeklyView();
+            else if (window.currentView === 'monthly') renderMonthlyView();
+        }
+
+        // ==================== DAILY VIEW LOGIC ====================
+        function renderDailyView() {
+            document.getElementById('fieldBlockers').value = window.appData.blockers || '';
+            document.getElementById('fieldActionPlan').value = window.appData.actionPlan || '';
+            document.getElementById('fieldTomorrow').value = window.appData.tomorrowPlan || '';
+
+            // Check if active date is Sunday
+            const activeDateObj = new Date(window.currentDate + 'T00:00:00');
+            const isSunday = activeDateObj.getDay() === 0;
+
+            const sunBanner = document.getElementById('sundayRestBanner');
+            const sunGoalsSection = document.getElementById('sundayGoalsSection');
+
+            if (isSunday) {
+                sunBanner.classList.remove('hidden');
+                sunGoalsSection.classList.remove('hidden');
+                loadWeeklyGoalsFromSunday();
+            } else {
+                sunBanner.classList.add('hidden');
+                sunGoalsSection.classList.add('hidden');
+            }
+
+            Object.keys(BLOCK_CONFIGS).forEach(blockId => {
+                renderBlockTasks(blockId);
+            });
+
+            updateDailyStats();
+        }
+
+        function renderBlockTasks(blockId) {
+            const container = document.getElementById(`tasks-${blockId}`);
+            if (!container) return;
+
+            const tasks = window.appData.blocks[blockId] || [];
+            container.innerHTML = '';
+
+            if (tasks.length === 0) {
+                container.innerHTML = `<div class="text-xs text-gray-500 italic p-2.5 border border-dashed border-gray-800 rounded-lg text-center">No tasks added to this block yet. Click below to add.</div>`;
+                updateBlockBadge(blockId, 0, 0);
+                return;
+            }
+
+            let completedCount = 0;
+
+            tasks.forEach((task, index) => {
+                if (task.status === 'completed') completedCount++;
+
+                const taskEl = document.createElement('div');
+                taskEl.className = `p-3 rounded-xl border transition-all ${
+                    task.status === 'completed' 
+                        ? 'bg-emerald-950/20 border-emerald-800/40' 
+                        : task.status === 'partial' 
+                        ? 'bg-amber-950/20 border-amber-800/40' 
+                        : 'bg-gray-950 border-gray-800 hover:border-gray-700'
+                }`;
+
+                taskEl.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start space-x-3 flex-grow">
+                            <button onclick="cycleTaskStatus('${blockId}', ${index})" class="mt-0.5 flex-shrink-0 w-5 h-5 rounded flex items-center justify-center border transition ${
+                                task.status === 'completed' 
+                                    ? 'bg-emerald-500 border-emerald-400 text-slate-950' 
+                                    : task.status === 'partial' 
+                                    ? 'bg-amber-500 border-amber-400 text-slate-950' 
+                                    : 'border-gray-600 bg-gray-900 hover:border-cyan-400'
+                            }">
+                                ${task.status === 'completed' 
+                                    ? '<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>'
+                                    : task.status === 'partial'
+                                    ? '<svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"></path></svg>'
+                                    : ''
+                                }
+                            </button>
+
+                            <div class="flex-grow cursor-pointer" onclick="openEditTaskModal('${blockId}', ${index})">
+                                <p class="text-xs font-medium ${task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-200'}">${escapeHtml(task.text)}</p>
+                                ${task.notes ? `
+                                    <div class="mt-1 flex items-center space-x-1.5 text-[11px] font-mono text-cyan-400/90">
+                                        <svg class="w-3 h-3 text-cyan-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        <span>${escapeHtml(task.notes)}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <span onclick="cycleTaskStatus('${blockId}', ${index})" class="cursor-pointer text-[10px] font-mono px-2 py-0.5 rounded border select-none ${
+                                task.status === 'completed' 
+                                    ? 'bg-emerald-950 text-emerald-300 border-emerald-800' 
+                                    : task.status === 'partial' 
+                                    ? 'bg-amber-950 text-amber-300 border-amber-800' 
+                                    : 'bg-gray-900 text-gray-400 border-gray-800'
+                            }">
+                                ${task.status === 'completed' ? 'DONE' : task.status === 'partial' ? 'IN PROGRESS' : 'TODO'}
+                            </span>
+
+                            <button onclick="openEditTaskModal('${blockId}', ${index})" class="text-gray-500 hover:text-cyan-400 p-1 transition" title="Edit Goal">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+
+                            <button onclick="deleteTask('${blockId}', ${index})" class="text-gray-500 hover:text-rose-400 p-1 transition" title="Delete">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(taskEl);
+            });
+
+            updateBlockBadge(blockId, completedCount, tasks.length);
+        }
+
+        function updateBlockBadge(blockId, done, total) {
+            const badge = document.getElementById(`badge-${blockId}`);
+            if (!badge) return;
+            badge.innerText = `${done}/${total} Done`;
+            if (total > 0 && done === total) {
+                badge.className = "text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800";
+            } else if (done > 0) {
+                badge.className = "text-xs font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800";
+            } else {
+                badge.className = "text-xs font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700";
+            }
+        }
+
+        function updateDailyStats() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            Object.keys(window.appData.blocks || {}).forEach(bId => {
+                const tasks = window.appData.blocks[bId] || [];
+                tasks.forEach(t => {
+                    totalTasks++;
+                    if (t.status === 'completed') completedTasks += 1;
+                    else if (t.status === 'partial') completedTasks += 0.5;
+                });
+            });
+
+            const scorePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            document.getElementById('statScorePct').innerText = `${scorePct}%`;
+            document.getElementById('statProgressBar').style.width = `${scorePct}%`;
+            document.getElementById('statTaskRatio').innerText = `${Math.floor(completedTasks)} of ${totalTasks} items completed`;
+        }
+
+        // ==================== WEEKLY VIEW LOGIC ====================
+        function getWeekDateRange(dateStr, weekOffset = 0) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const dayOfWeek = date.getDay(); // 0 is Sun, 1 is Mon
+            const distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            
+            const monDate = new Date(date);
+            monDate.setDate(date.getDate() + distanceToMon + (weekOffset * 7));
+
+            const sunDate = new Date(monDate);
+            sunDate.setDate(monDate.getDate() + 6);
+
+            return { mon: monDate, sun: sunDate };
+        }
+
+        function getWeekKey(dateObj) {
+            const d = new Date(dateObj);
+            d.setHours(0,0,0,0);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const yearStart = new Date(d.getFullYear(), 0, 1);
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        }
+
+        function renderWeeklyView() {
+            const range = getWeekDateRange(window.currentDate, window.activeWeekOffset);
+            const monStr = range.mon.toISOString().split('T')[0];
+            const sunStr = range.sun.toISOString().split('T')[0];
+
+            document.getElementById('weeklyDateRangeLabel').innerText = `${range.mon.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${range.sun.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+            // Collect 7 days data
+            const stripContainer = document.getElementById('weekly7DayStrip');
+            stripContainer.innerHTML = '';
+
+            let weekTotalTasks = 0;
+            let weekCompletedTasks = 0;
+            let activeDaysCount = 0;
+            let cyberTotal = 0, cyberDone = 0;
+            let devTotal = 0, devDone = 0;
+            let totalBlockersLogged = 0;
+
+            const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+            for (let i = 0; i < 7; i++) {
+                const curDayDate = new Date(range.mon);
+                curDayDate.setDate(range.mon.getDate() + i);
+                const curDayStr = curDayDate.toISOString().split('T')[0];
+                const isSunday = i === 6;
+
+                // Fetch day data
+                let dayData = null;
+                try {
+                    const saved = localStorage.getItem(`cyber_routine_${curDayStr}`);
+                    if (saved) dayData = JSON.parse(saved);
+                } catch(e) {}
+
+                let dayTasks = 0;
+                let dayDone = 0;
+
+                if (dayData && dayData.blocks) {
+                    Object.keys(dayData.blocks).forEach(bId => {
+                        (dayData.blocks[bId] || []).forEach(t => {
+                            dayTasks++;
+                            if (t.status === 'completed') dayDone += 1;
+                            else if (t.status === 'partial') dayDone += 0.5;
+
+                            if (bId === 'b4') {
+                                cyberTotal++;
+                                if (t.status === 'completed') cyberDone += 1;
+                                else if (t.status === 'partial') cyberDone += 0.5;
+                            } else if (bId === 'b3') {
+                                devTotal++;
+                                if (t.status === 'completed') devDone += 1;
+                                else if (t.status === 'partial') devDone += 0.5;
+                            }
+                        });
+                    });
+
+                    if (dayData.blockers && dayData.blockers.trim()) totalBlockersLogged++;
+                }
+
+                if (dayTasks > 0) activeDaysCount++;
+                weekTotalTasks += dayTasks;
+                weekCompletedTasks += dayDone;
+
+                const dayPct = dayTasks > 0 ? Math.round((dayDone / dayTasks) * 100) : 0;
+                const isCurrentActiveDay = curDayStr === window.currentDate;
+
+                // Render Day Strip Card
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    window.currentDate = curDayStr;
+                    document.getElementById('datePicker').value = curDayStr;
+                    switchMainView('daily');
+                    loadDateData(curDayStr);
+                };
+
+                card.className = `glass-panel p-3.5 rounded-xl border cursor-pointer transition hover:scale-[1.02] flex flex-col justify-between space-y-2 ${
+                    isCurrentActiveDay ? 'border-cyan-500 bg-cyan-950/20' : 'border-gray-800 hover:border-gray-700'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono font-bold ${isSunday ? 'text-purple-400' : 'text-gray-300'}">${dayNames[i]}</span>
+                        <span class="text-[10px] font-mono text-gray-500">${curDayDate.getDate()} ${curDayDate.toLocaleDateString('en-US', { month: 'short' })}</span>
+                    </div>
+
+                    ${isSunday ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800/60 self-start">REST & PLAN</span>` : ''}
+
+                    <div class="space-y-1 my-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-mono text-gray-400">${dayDone}/${dayTasks}</span>
+                            <span class="font-mono font-bold ${dayPct >= 80 ? 'text-emerald-400' : dayPct >= 50 ? 'text-amber-400' : 'text-gray-400'}">${dayPct}%</span>
+                        </div>
+                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full transition-all duration-300" style="width: ${dayPct}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-[10px] text-cyan-400 hover:underline font-mono text-right">View Routine →</div>
+                `;
+
+                stripContainer.appendChild(card);
+            }
+
+            const overallPct = weekTotalTasks > 0 ? Math.round((weekCompletedTasks / weekTotalTasks) * 100) : 0;
+            document.getElementById('weeklyOverallScore').innerText = `${overallPct}%`;
+            document.getElementById('weeklyStatTotalTasks').innerText = weekTotalTasks;
+            document.getElementById('weeklyStatRatio').innerText = `${Math.floor(weekCompletedTasks)} completed`;
+            document.getElementById('weeklyStatActiveDays').innerText = `${activeDaysCount} / 7`;
+
+            const cyberPct = cyberTotal > 0 ? Math.round((cyberDone / cyberTotal) * 100) : 0;
+            document.getElementById('weeklyStatCyberTasks').innerText = `${Math.floor(cyberDone)} / ${cyberTotal}`;
+            document.getElementById('weeklyStatCyberPct').innerText = `${cyberPct}% completion rate`;
+
+            const devPct = devTotal > 0 ? Math.round((devDone / devTotal) * 100) : 0;
+            document.getElementById('weeklyStatDevTasks').innerText = `${Math.floor(devDone)} / ${devTotal}`;
+            document.getElementById('weeklyStatDevPct').innerText = `${devPct}% completion rate`;
+
+            // Smart Weekly Suggestions Engine Generation
+            generateWeeklySuggestions(overallPct, activeDaysCount, cyberPct, devPct, totalBlockersLogged, weekTotalTasks);
+
+            // Load Next Week Goals into Weekly View
+            const weekKey = getWeekKey(range.mon);
+            const savedGoals = localStorage.getItem(`cyber_weekly_goals_${weekKey}`) || '';
+            document.getElementById('weeklyViewNextWeekGoals').value = savedGoals;
+        }
+
+        function generateWeeklySuggestions(overallPct, activeDays, cyberPct, devPct, blockersCount, totalTasks) {
+            const container = document.getElementById('weeklySuggestionsContainer');
+            container.innerHTML = '';
+
+            const suggestions = [];
+
+            // Rule 1: High Achievement / Congrats
+            if (overallPct >= 80 && activeDays >= 5) {
+                suggestions.push({
+                    type: 'CONGRATS',
+                    title: 'Exceptional Weekly Consistency!',
+                    color: 'emerald',
+                    text: `Outstanding execution! You hit a ${overallPct}% task completion rate across ${activeDays} active days. Your discipline across university coursework and labs is paying off.`
+                });
+            }
+
+            // Rule 2: Discipline Imbalance Alert
+            if (cyberPct < 50 && totalTasks > 0) {
+                suggestions.push({
+                    type: 'ALERT',
+                    title: 'Cybersecurity & Pentesting Lab Neglect',
+                    color: 'rose',
+                    text: `Your cybersecurity block completion dropped to ${cyberPct}%. Remember your goal as a cyber student—prioritize PortSwigger labs and vulnerability analysis in your 20:00-23:30 slot.`
+                });
+            } else if (devPct < 50 && totalTasks > 0) {
+                suggestions.push({
+                    type: 'ALERT',
+                    title: 'Web Dev & AI Project Drag',
+                    color: 'amber',
+                    text: `Project tasks fell to ${devPct}%. Ensure you protect your 16:00-20:00 coding block to keep pull requests moving.`
+                });
+            }
+
+            // Rule 3: High Blockers Reminder
+            if (blockersCount >= 3) {
+                suggestions.push({
+                    type: 'REMINDER',
+                    title: 'Recurring Bottlenecks Detected',
+                    color: 'amber',
+                    text: `You logged blockers on ${blockersCount} days this week. Review your daily Action Plans—break down complex PortSwigger payloads or university assignments into smaller sub-tasks.`
+                });
+            }
+
+            // Rule 4: Pacing & Rest Advice
+            suggestions.push({
+                type: 'ADVICE',
+                title: 'Sunday Recovery & Reset Protocol',
+                color: 'purple',
+                text: 'Always respect your Sunday rest day. Use Sunday evening to write down your top 3-5 targets for next week to maintain momentum without burnout.'
+            });
+
+            suggestions.forEach(item => {
+                const borderColor = item.color === 'emerald' ? 'border-emerald-800/40 bg-emerald-950/10' : item.color === 'rose' ? 'border-rose-800/40 bg-rose-950/10' : item.color === 'purple' ? 'border-purple-800/40 bg-purple-950/10' : 'border-amber-800/40 bg-amber-950/10';
+                const badgeColor = item.color === 'emerald' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : item.color === 'rose' ? 'bg-rose-950 text-rose-300 border-rose-800' : item.color === 'purple' ? 'bg-purple-950 text-purple-300 border-purple-800' : 'bg-amber-950 text-amber-300 border-amber-800';
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${borderColor} space-y-2`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${badgeColor} font-bold">${item.type}</span>
+                        <span class="text-xs text-gray-500 font-mono">System Insight</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">${item.title}</h4>
+                    <p class="text-xs text-gray-300 leading-relaxed font-sans">${item.text}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.navigateWeek = function(offsetDelta) {
+            window.activeWeekOffset += offsetDelta;
+            renderWeeklyView();
+        };
+
+        window.jumpToCurrentWeek = function() {
+            window.activeWeekOffset = 0;
+            renderWeeklyView();
+        };
+
+        window.saveWeeklyGoalsFromSunday = function() {
+            const range = getWeekDateRange(window.currentDate, 0);
+            const weekKey = getWeekKey(range.mon);
+            const val = document.getElementById('fieldNextWeekGoals').value;
+            localStorage.setItem(`cyber_weekly_goals_${weekKey}`, val);
+            showToast('Weekly goals saved for next week!');
+        };
+
+        window.saveWeeklyGoalsFromView = function() {
+            const range = getWeekDateRange(window.currentDate, window.activeWeekOffset);
+            const weekKey = getWeekKey(range.mon);
+            const val = document.getElementById('weeklyViewNextWeekGoals').value;
+            localStorage.setItem(`cyber_weekly_goals_${weekKey}`, val);
+            showToast('Weekly goals updated!');
+        };
+
+        function loadWeeklyGoalsFromSunday() {
+            const range = getWeekDateRange(window.currentDate, 0);
+            const weekKey = getWeekKey(range.mon);
+            const saved = localStorage.getItem(`cyber_weekly_goals_${weekKey}`) || '';
+            document.getElementById('fieldNextWeekGoals').value = saved;
+        }
+
+        // ==================== MONTHLY VIEW LOGIC ====================
+        function renderMonthlyView() {
+            const curDate = new Date(window.currentDate + 'T00:00:00');
+            const targetMonthDate = new Date(curDate.getFullYear(), curDate.getMonth() + window.activeMonthOffset, 1);
+            
+            const year = targetMonthDate.getFullYear();
+            const month = targetMonthDate.getMonth();
+
+            document.getElementById('monthlyDateLabel').innerText = `${targetMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+
+            // Days in month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+
+            // Grid offset for Monday start (0: Mon ... 6: Sun)
+            let startOffset = firstDay.getDay() - 1;
+            if (startOffset === -1) startOffset = 6;
+
+            const gridContainer = document.getElementById('monthlyCalendarGrid');
+            gridContainer.innerHTML = '';
+
+            // Blank filler cells
+            for (let i = 0; i < startOffset; i++) {
+                const blank = document.createElement('div');
+                blank.className = "h-14 bg-gray-950/40 border border-gray-900 rounded-xl opacity-30";
+                gridContainer.appendChild(blank);
+            }
+
+            let monthTotalTasks = 0;
+            let monthCompletedTasks = 0;
+            let monthActiveDays = 0;
+            let weekStatsMap = {};
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dateObj = new Date(year, month, d);
+                const isSunday = dateObj.getDay() === 0;
+
+                let dayData = null;
+                try {
+                    const saved = localStorage.getItem(`cyber_routine_${dateStr}`);
+                    if (saved) dayData = JSON.parse(saved);
+                } catch(e) {}
+
+                let dayTasks = 0;
+                let dayDone = 0;
+
+                if (dayData && dayData.blocks) {
+                    Object.keys(dayData.blocks).forEach(bId => {
+                        (dayData.blocks[bId] || []).forEach(t => {
+                            dayTasks++;
+                            if (t.status === 'completed') dayDone += 1;
+                            else if (t.status === 'partial') dayDone += 0.5;
+                        });
+                    });
+                }
+
+                if (dayTasks > 0) monthActiveDays++;
+                monthTotalTasks += dayTasks;
+                monthCompletedTasks += dayDone;
+
+                const weekNum = Math.ceil((d + startOffset) / 7);
+                if (!weekStatsMap[weekNum]) weekStatsMap[weekNum] = { total: 0, done: 0 };
+                weekStatsMap[weekNum].total += dayTasks;
+                weekStatsMap[weekNum].done += dayDone;
+
+                const dayPct = dayTasks > 0 ? Math.round((dayDone / dayTasks) * 100) : 0;
+
+                const cell = document.createElement('div');
+                cell.onclick = () => {
+                    window.currentDate = dateStr;
+                    document.getElementById('datePicker').value = dateStr;
+                    switchMainView('daily');
+                    loadDateData(dateStr);
+                };
+
+                const isCurrentActiveDay = dateStr === window.currentDate;
+                const cellBg = dayPct >= 80 
+                    ? 'bg-emerald-950/30 border-emerald-800/50 hover:border-emerald-500' 
+                    : dayPct >= 50 
+                    ? 'bg-amber-950/30 border-amber-800/50 hover:border-amber-500' 
+                    : isSunday 
+                    ? 'bg-purple-950/30 border-purple-900/40 hover:border-purple-600'
+                    : 'bg-gray-950 border-gray-800 hover:border-gray-700';
+
+                cell.className = `h-14 p-2 rounded-xl border ${cellBg} cursor-pointer transition flex flex-col justify-between ${
+                    isCurrentActiveDay ? 'ring-2 ring-cyan-400' : ''
+                }`;
+
+                cell.innerHTML = `
+                    <div class="flex justify-between items-center text-[11px] font-mono">
+                        <span class="${isSunday ? 'text-purple-400 font-bold' : 'text-gray-300'}">${d}</span>
+                        ${dayTasks > 0 ? `<span class="text-[10px] ${dayPct >= 80 ? 'text-emerald-400 font-bold' : 'text-gray-400'}">${dayPct}%</span>` : ''}
+                    </div>
+                    ${isSunday ? `<span class="text-[9px] text-purple-300 font-mono">Rest</span>` : `<span class="text-[9px] text-gray-500 font-mono">${dayTasks} items</span>`}
+                `;
+
+                gridContainer.appendChild(cell);
+            }
+
+            const monthPct = monthTotalTasks > 0 ? Math.round((monthCompletedTasks / monthTotalTasks) * 100) : 0;
+            document.getElementById('monthlyOverallScore').innerText = `${monthPct}%`;
+            document.getElementById('monthlyStatTotalTasks').innerText = monthTotalTasks;
+            document.getElementById('monthlyStatRatio').innerText = `${Math.floor(monthCompletedTasks)} completed`;
+            document.getElementById('monthlyStatActiveDays').innerText = `${monthActiveDays} days`;
+
+            // Week Breakdown Cards
+            const weekBreakdownContainer = document.getElementById('monthlyWeekBreakdownContainer');
+            weekBreakdownContainer.innerHTML = '';
+
+            let bestWeekNum = '--';
+            let bestWeekPct = 0;
+
+            Object.keys(weekStatsMap).forEach(wNum => {
+                const wData = weekStatsMap[wNum];
+                const wPct = wData.total > 0 ? Math.round((wData.done / wData.total) * 100) : 0;
+                
+                if (wPct > bestWeekPct) {
+                    bestWeekPct = wPct;
+                    bestWeekNum = `Week ${wNum}`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "glass-panel p-4 rounded-xl border border-gray-800 space-y-2";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono font-bold text-cyan-400">Week ${wNum}</span>
+                        <span class="text-xs font-mono font-bold ${wPct >= 80 ? 'text-emerald-400' : 'text-amber-400'}">${wPct}%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                        <div class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full" style="width: ${wPct}%"></div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 font-mono">${Math.floor(wData.done)} of ${wData.total} goals completed</p>
+                `;
+                weekBreakdownContainer.appendChild(card);
+            });
+
+            document.getElementById('monthlyStatBestWeek').innerText = bestWeekNum;
+            document.getElementById('monthlyStatBestWeekPct').innerText = `${bestWeekPct}% completion`;
+
+            generateMonthlySuggestions(monthPct, monthActiveDays, daysInMonth);
+        }
+
+        function generateMonthlySuggestions(monthPct, activeDays, totalDays) {
+            const container = document.getElementById('monthlySuggestionsContainer');
+            container.innerHTML = '';
+
+            const suggestions = [];
+
+            if (monthPct >= 75) {
+                suggestions.push({
+                    type: 'CONGRATS',
+                    title: 'High-Performance Monthly Execution',
+                    color: 'emerald',
+                    text: `Fantastic momentum! Maintaining a ${monthPct}% completion rate across the month demonstrates university-grade discipline and strong lab progress.`
+                });
+            } else {
+                suggestions.push({
+                    type: 'ALERT',
+                    title: 'Monthly Goal Slippage Warning',
+                    color: 'amber',
+                    text: `Monthly completion sits at ${monthPct}%. Focus on tightening daily blockers resolution to prevent task overflow.`
+                });
+            }
+
+            suggestions.push({
+                type: 'ADVICE',
+                title: 'University Exams & Cyber Cert Strategy',
+                color: 'cyan',
+                text: 'Balance your 07:00-16:00 university study hours with evening PortSwigger labs. Ensure syllabus revisions are scheduled prior to test weeks.'
+            });
+
+            suggestions.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border border-gray-800 bg-gray-950 space-y-2`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded border border-cyan-800 bg-cyan-950 text-cyan-300 font-bold">${item.type}</span>
+                        <span class="text-xs text-gray-500 font-mono">Monthly Audit</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">${item.title}</h4>
+                    <p class="text-xs text-gray-300 leading-relaxed font-sans">${item.text}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.navigateMonth = function(offsetDelta) {
+            window.activeMonthOffset += offsetDelta;
+            renderMonthlyView();
+        };
+
+        window.jumpToCurrentMonth = function() {
+            window.activeMonthOffset = 0;
+            renderMonthlyView();
+        };
+
+        // ==================== TASK MODAL SYSTEM ====================
+        window.openAddTaskModal = function(blockId) {
+            window.modalTargetBlock = blockId;
+            window.modalEditIndex = null;
+            window.modalSelectedStatus = 'pending';
+
+            const cfg = BLOCK_CONFIGS[blockId];
+            document.getElementById('taskModalTitle').innerText = `Add Goal to: ${cfg.title}`;
+            document.getElementById('taskInputText').value = '';
+            document.getElementById('taskInputNotes').value = '';
+            
+            updateModalStatusUI('pending');
+            document.getElementById('taskModal').classList.remove('hidden');
+        };
+
+        window.openEditTaskModal = function(blockId, index) {
+            window.modalTargetBlock = blockId;
+            window.modalEditIndex = index;
+
+            const task = window.appData.blocks[blockId][index];
+            window.modalSelectedStatus = task.status || 'pending';
+
+            document.getElementById('taskModalTitle').innerText = `Edit Goal in: ${BLOCK_CONFIGS[blockId].title}`;
+            document.getElementById('taskInputText').value = task.text || '';
+            document.getElementById('taskInputNotes').value = task.notes || '';
+
+            updateModalStatusUI(task.status || 'pending');
+            document.getElementById('taskModal').classList.remove('hidden');
+        };
+
+        window.closeTaskModal = function() {
+            document.getElementById('taskModal').classList.add('hidden');
+        };
+
+        window.selectModalStatus = function(status) {
+            window.modalSelectedStatus = status;
+            updateModalStatusUI(status);
+        };
+
+        function updateModalStatusUI(status) {
+            const btnP = document.getElementById('statusBtnPending');
+            const btnPr = document.getElementById('statusBtnPartial');
+            const btnC = document.getElementById('statusBtnCompleted');
+
+            btnP.className = "py-2 text-xs font-mono rounded-lg border border-gray-700 bg-gray-950 text-gray-400 transition";
+            btnPr.className = "py-2 text-xs font-mono rounded-lg border border-amber-800/40 bg-amber-950/40 text-amber-300 transition";
+            btnC.className = "py-2 text-xs font-mono rounded-lg border border-emerald-800/40 bg-emerald-950/40 text-emerald-300 transition";
+
+            if (status === 'pending') btnP.className = "py-2 text-xs font-mono rounded-lg border border-cyan-500 bg-cyan-950 text-cyan-300 font-bold transition";
+            else if (status === 'partial') btnPr.className = "py-2 text-xs font-mono rounded-lg border border-amber-400 bg-amber-900 text-amber-200 font-bold transition";
+            else if (status === 'completed') btnC.className = "py-2 text-xs font-mono rounded-lg border border-emerald-400 bg-emerald-900 text-emerald-200 font-bold transition";
+        }
+
+        window.saveTaskFromModal = function() {
+            const text = document.getElementById('taskInputText').value.trim();
+            const notes = document.getElementById('taskInputNotes').value.trim();
+
+            if (!text) {
+                showToast('Please enter a task description');
+                return;
+            }
+
+            if (!window.appData.blocks[window.modalTargetBlock]) {
+                window.appData.blocks[window.modalTargetBlock] = [];
+            }
+
+            if (window.modalEditIndex !== null) {
+                // Edit existing
+                window.appData.blocks[window.modalTargetBlock][window.modalEditIndex] = {
+                    ...window.appData.blocks[window.modalTargetBlock][window.modalEditIndex],
+                    text: text,
+                    notes: notes,
+                    status: window.modalSelectedStatus
+                };
+                showToast('Goal updated');
+            } else {
+                // Add new
+                window.appData.blocks[window.modalTargetBlock].push({
+                    id: Date.now().toString(),
+                    text: text,
+                    notes: notes,
+                    status: window.modalSelectedStatus
+                });
+                showToast('New goal added');
+            }
+
+            closeTaskModal();
+            renderBlockTasks(window.modalTargetBlock);
+            window.saveCurrentData();
+        };
+
+        window.cycleTaskStatus = function(blockId, index) {
+            const current = window.appData.blocks[blockId][index].status;
+            if (current === 'pending') window.appData.blocks[blockId][index].status = 'completed';
+            else if (current === 'completed') window.appData.blocks[blockId][index].status = 'partial';
+            else window.appData.blocks[blockId][index].status = 'pending';
+
+            renderBlockTasks(blockId);
+            window.saveCurrentData();
+        };
+
+        window.deleteTask = function(blockId, index) {
+            window.appData.blocks[blockId].splice(index, 1);
+            renderBlockTasks(blockId);
+            window.saveCurrentData();
+            showToast('Goal deleted');
+        };
+
+        window.addPresetTask = function(blockId, text) {
+            if (!window.appData.blocks[blockId]) window.appData.blocks[blockId] = [];
+            window.appData.blocks[blockId].push({
+                id: Date.now().toString(),
+                text: text,
+                status: 'pending',
+                notes: ''
+            });
+            renderBlockTasks(blockId);
+            window.saveCurrentData();
+            showToast('Preset task added');
+        };
+
+        window.changeDate = function(newDate) {
+            if (!newDate) return;
+            window.saveCurrentData();
+            loadDateData(newDate);
+            showToast(`Switched date: ${newDate}`);
+        };
+
+        // RESET MODAL
+        window.openResetModal = function() {
+            document.getElementById('confirmResetModal').classList.remove('hidden');
+        };
+        window.closeResetModal = function() {
+            document.getElementById('confirmResetModal').classList.add('hidden');
+        };
+        window.confirmResetDayData = function() {
+            window.appData = createEmptyDayStructure(window.currentDate);
+            renderUI();
+            window.saveCurrentData();
+            closeResetModal();
+            showToast('Day reset to template');
+        };
+
+        // DEMO WEEK / MONTH POPULATOR
+        window.loadSampleWeekAndMonth = function() {
+            const baseDate = new Date(window.currentDate + 'T00:00:00');
+            
+            for (let i = -14; i <= 7; i++) {
+                const d = new Date(baseDate);
+                d.setDate(baseDate.getDate() + i);
+                const dStr = d.toISOString().split('T')[0];
+
+                const isSunday = d.getDay() === 0;
+
+                const sampleDay = {
+                    date: dStr,
+                    blocks: {
+                        b1: [{ id: '1', text: 'Wake up at 06:00 AM & 15-min mindset reflection', status: 'completed', notes: 'Defined top focus' }],
+                        b2: [
+                            { id: '2', text: 'University OS & Networking Course Work', status: i % 2 === 0 ? 'completed' : 'partial', notes: 'Configured OSPF routing' },
+                            { id: '3', text: 'Read "Atomic Habits" / Speech audio session', status: 'completed', notes: 'Notes on habit stacking' }
+                        ],
+                        b3: [
+                            { id: '4', text: 'AI Model Scripting & Web App Feature Sprint', status: i % 3 === 0 ? 'partial' : 'completed', notes: 'Pushed git commit' }
+                        ],
+                        b4: [
+                            { id: '5', text: 'PortSwigger Security Academy: SQLi & XSS labs', status: isSunday ? 'pending' : 'completed', notes: 'Solved via Python script' }
+                        ],
+                        b5: [
+                            { id: '6', text: 'End of day goal verification & report compile', status: 'completed', notes: 'All green' }
+                        ]
+                    },
+                    blockers: isSunday ? '' : 'Debugging CORS policy took 30 mins longer.',
+                    actionPlan: 'Created standardized boilerplate header script.',
+                    tomorrowPlan: '1. PortSwigger CSRF labs\n2. Operating Systems Quiz Revision'
+                };
+
+                localStorage.setItem(`cyber_routine_${dStr}`, JSON.stringify(sampleDay));
+            }
+
+            loadDateData(window.currentDate);
+            showToast('Demo Week & Month historical logs populated!');
+        };
+
+        // VISUAL REPORT CARD MODAL & EXPORT
+        window.openReportModal = function() {
+            window.saveCurrentData();
+
+            document.getElementById('reportModalDate').innerText = `Date: ${window.appData.date} | University Cyber & Dev Operations`;
+            renderVisualReportCard();
+
+            document.getElementById('reportModal').classList.remove('hidden');
+        };
+
+        window.closeReportModal = function() {
+            document.getElementById('reportModal').classList.add('hidden');
+        };
+
+        function renderVisualReportCard() {
+            let totalTasks = 0;
+            let completedTasks = 0;
+
+            Object.keys(window.appData.blocks || {}).forEach(bId => {
+                (window.appData.blocks[bId] || []).forEach(t => {
+                    totalTasks++;
+                    if (t.status === 'completed') completedTasks += 1;
+                    else if (t.status === 'partial') completedTasks += 0.5;
+                });
+            });
+
+            const scorePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+            document.getElementById('visualScoreGauge').innerText = `${scorePct}%`;
+            document.getElementById('visualReportMeta').innerText = `Total Tasks: ${totalTasks} | Completed: ${Math.floor(completedTasks)} | In Progress: ${totalTasks - Math.floor(completedTasks)}`;
+            document.getElementById('cardTimestamp').innerText = `Generated on ${new Date().toLocaleString()}`;
+
+            const container = document.getElementById('visualBlocksContainer');
+            container.innerHTML = '';
+
+            Object.keys(BLOCK_CONFIGS).forEach(bId => {
+                const config = BLOCK_CONFIGS[bId];
+                const tasks = window.appData.blocks[bId] || [];
+                
+                const card = document.createElement('div');
+                card.className = "bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-2";
+                
+                let taskItemsHtml = '';
+                tasks.forEach(t => {
+                    const badgeColor = t.status === 'completed' ? 'text-emerald-400' : t.status === 'partial' ? 'text-amber-400' : 'text-gray-500';
+                    const icon = t.status === 'completed' ? '✓' : t.status === 'partial' ? '⚡' : '○';
+                    
+                    taskItemsHtml += `
+                        <div class="text-xs border-b border-gray-900 pb-1.5 last:border-0">
+                            <div class="flex items-start space-x-2">
+                                <span class="${badgeColor} font-bold font-mono">${icon}</span>
+                                <span class="${t.status === 'completed' ? 'text-gray-300' : 'text-gray-400'}">${escapeHtml(t.text)}</span>
+                            </div>
+                            ${t.notes ? `<div class="ml-5 text-[11px] font-mono text-cyan-400/80">└ Note: ${escapeHtml(t.notes)}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                if (tasks.length === 0) taskItemsHtml = `<p class="text-xs text-gray-600 italic">No tasks logged.</p>`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                        <span class="text-xs font-mono font-bold text-cyan-400">${config.time}</span>
+                        <span class="text-[11px] text-gray-300 font-medium">${config.title}</span>
+                    </div>
+                    <div class="space-y-1 mt-2">
+                        ${taskItemsHtml}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            document.getElementById('visualBlockers').innerText = window.appData.blockers || 'None reported today.';
+            document.getElementById('visualActionPlan').innerText = window.appData.actionPlan || 'Maintaining momentum.';
+            document.getElementById('visualTomorrow').innerText = window.appData.tomorrowPlan || 'Standard routine schedule.';
+        }
+
+        // URL ENCODER & DECODER
+        function compressReportData(data) {
+            const compact = {
+                d: data.date,
+                b: {},
+                r: data.blockers || '',
+                a: data.actionPlan || '',
+                p: data.tomorrowPlan || ''
+            };
+            Object.keys(data.blocks || {}).forEach(bId => {
+                compact.b[bId] = (data.blocks[bId] || []).map(t => [
+                    t.text,
+                    t.status === 'completed' ? 1 : t.status === 'partial' ? 2 : 0,
+                    t.notes || ''
+                ]);
+            });
+            const jsonStr = JSON.stringify(compact);
+            const base64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decompressReportData(str) {
+            let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4) base64 += '=';
+            const jsonStr = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            const compact = JSON.parse(jsonStr);
+            const data = {
+                date: compact.d,
+                blocks: {},
+                blockers: compact.r || '',
+                actionPlan: compact.a || '',
+                tomorrowPlan: compact.p || ''
+            };
+            Object.keys(compact.b || {}).forEach(bId => {
+                data.blocks[bId] = (compact.b[bId] || []).map((t, idx) => ({
+                    id: String(idx + 1),
+                    text: t[0],
+                    status: t[1] === 1 ? 'completed' : t[1] === 2 ? 'partial' : 'pending',
+                    notes: t[2] || ''
+                }));
+            });
+            return data;
+        }
+
+        window.shareVisualReportLink = function() {
+            window.saveCurrentData();
+            try {
+                const token = compressReportData(window.appData);
+                const baseUrl = window.location.href.split('#')[0].split('?')[0];
+                const shortUrl = `${baseUrl}#r=${token}`;
+
+                copyTextToClipboard(shortUrl);
+                showToast('Short Share Link copied!');
+            } catch (err) {
+                console.error("Error creating report link:", err);
+                showToast('Failed to create share link.');
+            }
+        };
+
+        function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text));
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-999999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {}
+            document.body.removeChild(textarea);
+        }
+
+        function checkAndLoadSharedUrl() {
+            try {
+                let token = null;
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('r')) {
+                    token = urlParams.get('r');
+                } else if (window.location.hash.startsWith('#r=')) {
+                    token = window.location.hash.substring(3);
+                }
+
+                if (!token) return false;
+
+                const sharedData = decompressReportData(token);
+                if (sharedData && sharedData.date) {
+                    window.appData = sharedData;
+                    window.currentDate = sharedData.date;
+                    window.isSharedMode = true;
+
+                    document.getElementById('sharedBanner').classList.remove('hidden');
+                    document.getElementById('sharedDate').innerText = window.currentDate;
+                    document.getElementById('datePicker').value = window.currentDate;
+
+                    renderCurrentView();
+                    window.openReportModal();
+                    showToast('Loaded shared team report');
+                    return true;
+                }
+            } catch (e) {
+                console.error("Failed to parse shared URL:", e);
+            }
+            return false;
+        }
+
+        window.exitSharedView = function() {
+            window.isSharedMode = false;
+            window.location.search = '';
+            window.location.hash = '';
+            document.getElementById('sharedBanner').classList.add('hidden');
+            loadDateData(getTodayDateString());
+            window.closeReportModal();
+        };
+
+        window.downloadNativePNG = function() {
+            const card = document.getElementById('printableVisualReportCard');
+            showToast('Generating high-res PNG...');
+
+            try {
+                const width = card.offsetWidth || 780;
+                const height = card.offsetHeight || 950;
+
+                const canvas = document.createElement('canvas');
+                const scale = 2;
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scale, scale);
+
+                ctx.fillStyle = '#0b0f19';
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.textBaseline = 'top';
+
+                ctx.fillStyle = '#111827';
+                ctx.strokeStyle = '#0891b2';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(16, 16, width - 32, 90, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#22d3ee';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText('DAILY PERFORMANCE CARD', 32, 30);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px sans-serif';
+                ctx.fillText('University Studies & Cyber Security Engineering', 32, 48);
+
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '11px monospace';
+                ctx.fillText(`Date: ${window.appData.date} | Structured Ops Review`, 32, 74);
+
+                let totalTasks = 0;
+                let completedTasks = 0;
+                Object.keys(window.appData.blocks || {}).forEach(bId => {
+                    (window.appData.blocks[bId] || []).forEach(t => {
+                        totalTasks++;
+                        if (t.status === 'completed') completedTasks += 1;
+                        else if (t.status === 'partial') completedTasks += 0.5;
+                    });
+                });
+                const scorePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+                ctx.fillStyle = '#34d399';
+                ctx.font = 'bold 32px monospace';
+                ctx.fillText(`${scorePct}%`, width - 110, 36);
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '10px sans-serif';
+                ctx.fillText('Completion Score', width - 110, 74);
+
+                let currY = 124;
+                const colW = (width - 44) / 2;
+
+                const blockKeys = Object.keys(BLOCK_CONFIGS);
+                for (let i = 0; i < blockKeys.length; i++) {
+                    const bId = blockKeys[i];
+                    const cfg = BLOCK_CONFIGS[bId];
+                    const tasks = window.appData.blocks[bId] || [];
+
+                    const colIndex = i % 2;
+                    const posX = 16 + colIndex * (colW + 12);
+                    if (colIndex === 0 && i > 0) currY += 140;
+
+                    ctx.fillStyle = '#030712';
+                    ctx.strokeStyle = '#1f2937';
+                    ctx.beginPath();
+                    ctx.roundRect(posX, currY, colW, 128, 8);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#22d3ee';
+                    ctx.font = 'bold 11px monospace';
+                    ctx.fillText(cfg.time, posX + 12, currY + 10);
+
+                    ctx.fillStyle = '#e5e7eb';
+                    ctx.font = 'bold 11px sans-serif';
+                    ctx.fillText(cfg.title.substring(0, 32), posX + 100, currY + 10);
+
+                    ctx.strokeStyle = '#111827';
+                    ctx.beginPath();
+                    ctx.moveTo(posX + 12, currY + 28);
+                    ctx.lineTo(posX + colW - 12, currY + 28);
+                    ctx.stroke();
+
+                    let itemY = currY + 34;
+                    tasks.slice(0, 3).forEach(t => {
+                        ctx.fillStyle = t.status === 'completed' ? '#34d399' : t.status === 'partial' ? '#fbbf24' : '#6b7280';
+                        ctx.font = 'bold 11px monospace';
+                        ctx.fillText(t.status === 'completed' ? '✓' : t.status === 'partial' ? '⚡' : '○', posX + 12, itemY);
+
+                        ctx.fillStyle = t.status === 'completed' ? '#d1d5db' : '#9ca3af';
+                        ctx.font = '11px sans-serif';
+                        ctx.fillText(t.text.substring(0, 36), posX + 28, itemY);
+                        itemY += 24;
+                    });
+
+                    if (tasks.length === 0) {
+                        ctx.fillStyle = '#4b5563';
+                        ctx.font = 'italic 11px sans-serif';
+                        ctx.fillText('No tasks logged.', posX + 12, itemY);
+                    }
+                }
+
+                currY += 150;
+
+                const qualW = (width - 44) / 2;
+                
+                ctx.fillStyle = '#030712';
+                ctx.strokeStyle = '#881337';
+                ctx.beginPath();
+                ctx.roundRect(16, currY, qualW, 110, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fb7185';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText("What didn't happen & Why?", 28, currY + 12);
+                ctx.fillStyle = '#d1d5db';
+                ctx.font = '11px sans-serif';
+                wrapText(ctx, window.appData.blockers || 'None reported today.', 28, currY + 32, qualW - 24, 16);
+
+                ctx.fillStyle = '#030712';
+                ctx.strokeStyle = '#78350f';
+                ctx.beginPath();
+                ctx.roundRect(28 + qualW, currY, qualW, 110, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#fcd34d';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText("Action Plan & Remedies", 40 + qualW, currY + 12);
+                ctx.fillStyle = '#d1d5db';
+                ctx.font = '11px sans-serif';
+                wrapText(ctx, window.appData.actionPlan || 'Maintaining momentum.', 40 + qualW, currY + 32, qualW - 24, 16);
+
+                currY += 122;
+
+                ctx.fillStyle = '#030712';
+                ctx.strokeStyle = '#164e63';
+                ctx.beginPath();
+                ctx.roundRect(16, currY, width - 32, 90, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#22d3ee';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText("Tomorrow's Priorities", 28, currY + 12);
+                ctx.fillStyle = '#a5f3fc';
+                ctx.font = '11px monospace';
+                wrapText(ctx, window.appData.tomorrowPlan || 'Standard routine schedule.', 28, currY + 32, width - 56, 16);
+
+                const pngUrl = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = pngUrl;
+                a.download = `daily-report-${window.appData.date}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast(`Downloaded daily-report-${window.appData.date}.png`);
+
+            } catch (err) {
+                console.error("Canvas export failed:", err);
+                showToast("Image generation failed. Try 'Save as PDF'.");
+            }
+        };
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                    if (currentY > y + 60) break;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+        }
+
+        window.printReportCard = function() {
+            window.print();
+        };
+
+        function focusSundayPlanner() {
+            document.getElementById('fieldNextWeekGoals').focus();
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto bg-gray-900 border border-cyan-500/40 text-cyan-200 text-xs px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 font-mono';
+            toast.innerHTML = `
+                <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
