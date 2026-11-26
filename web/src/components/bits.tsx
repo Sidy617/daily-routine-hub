@@ -1,14 +1,19 @@
 import type { ReactNode } from 'react';
 import type { BlockTotal, Profile } from '../lib/types';
 import { score } from '../lib/stats';
+import { useFace } from '../lib/faces';
 
-export function Avatar({ person, size = 36 }: { person: Pick<Profile, 'name' | 'colour'>; size?: number }) {
-  const letter = (person.name.trim()[0] ?? '?').toUpperCase();
-  return (
-    <span className="avatar" style={{ width: size, height: size, background: person.colour, fontSize: size * 0.42 }} aria-hidden="true">
-      {letter}
-    </span>
-  );
+/** The person's photo, or their drawn face until they add one. */
+export function Avatar({ person, size = 36 }: { person: Pick<Profile, 'name' | 'colour'> & { photo_url?: string | null }; size?: number }) {
+  const src = useFace(person);
+  if (!src) {
+    return (
+      <span className="avatar initial" style={{ width: size, height: size, background: person.colour, fontSize: size * 0.42 }} aria-hidden="true">
+        {(person.name.trim()[0] ?? '?').toUpperCase()}
+      </span>
+    );
+  }
+  return <img className="avatar" src={src} alt="" width={size} height={size} style={{ width: size, height: size, background: person.colour }} />;
 }
 
 /** One bar per block, filled by how much of it is done. */

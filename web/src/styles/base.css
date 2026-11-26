@@ -641,9 +641,14 @@ span.task-text {
 
 .avatar {
   flex: none;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar.initial {
   display: inline-grid;
   place-items: center;
-  border-radius: 50%;
   color: white;
   font-weight: 700;
   line-height: 1;
@@ -1062,6 +1067,265 @@ section {
   gap: 8px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
+}
+
+/* Photo in Me ----------------------------------------------------------------------- */
+
+.photo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.photo-row .row-actions {
+  flex: 1;
+}
+
+.file-btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.file-btn:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Sign in: the team showcase ---------------------------------------------------------- */
+
+.auth-wide {
+  min-height: 100vh;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(32px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
+  display: grid;
+  gap: 32px;
+  align-content: start;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-form .org {
+  font-weight: 700;
+  color: var(--mute);
+  text-transform: var(--label-case);
+}
+
+.auth-form h1 {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: var(--title-weight);
+  text-transform: var(--title-case);
+}
+
+.no-art .auth-form {
+  margin: 16px auto 0;
+}
+
+@media (min-width: 900px) {
+  .auth-wide {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: center;
+    align-content: center;
+    gap: 56px;
+  }
+  .auth-wide.no-art {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 600px) {
+  .showcase {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+  }
+}
+
+.show-grid {
+  display: flex;
+  gap: 10px;
+  flex: none;
+}
+
+.show-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.show-col.c1 {
+  margin-top: 48px;
+}
+
+.show-col.c2 {
+  margin-top: 22px;
+}
+
+.show-photo {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  width: 78px;
+  height: 86px;
+  transition: opacity 0.4s;
+}
+
+.show-col.c1 .show-photo {
+  width: 88px;
+  height: 96px;
+}
+
+.show-col.c2 .show-photo {
+  width: 82px;
+  height: 90px;
+}
+
+.show-col.c1 {
+  margin-top: 36px;
+}
+
+.show-col.c2 {
+  margin-top: 16px;
+}
+
+/* On a phone only the name in focus shows, so the form stays on the first screen. */
+@media (max-width: 599px) {
+  .show-names.cycling {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .show-names.cycling .show-name:not(.on) {
+    display: none;
+  }
+}
+
+@media (min-width: 600px) {
+  .show-photo {
+    width: 120px;
+    height: 130px;
+  }
+  .show-col.c1 .show-photo {
+    width: 134px;
+    height: 144px;
+  }
+  .show-col.c2 .show-photo {
+    width: 126px;
+    height: 136px;
+  }
+  .show-col.c1 {
+    margin-top: 56px;
+  }
+  .show-col.c2 {
+    margin-top: 26px;
+  }
+  .show-names {
+    flex: 1;
+    min-width: 160px;
+  }
+}
+
+.show-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(0.8);
+  transition: filter 0.5s;
+}
+
+.show-photo.on img {
+  filter: none;
+}
+
+.show-wait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.25;
+}
+
+.show-photo.dim {
+  opacity: 0.6;
+}
+
+.show-names {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+@media (min-width: 600px) {
+  .show-names {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    padding-top: 8px;
+  }
+}
+
+.show-name {
+  display: flex;
+  gap: 10px;
+  transition: opacity 0.3s;
+}
+
+.show-name.dim {
+  opacity: 0.5;
+}
+
+.show-pill {
+  flex: none;
+  width: 16px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 5px;
+  background: var(--line);
+  transition: width 0.3s, background 0.3s;
+}
+
+.show-name.on .show-pill {
+  width: 22px;
+}
+
+.show-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.show-text b {
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.show-text small {
+  font-size: 13px;
+  color: var(--mute);
+  text-transform: var(--label-case);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .show-photo,
+  .show-photo img,
+  .show-name,
+  .show-pill {
+    transition: none;
+  }
 }
 
 /* Sign in and setup --------------------------------------------------------------- */

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_KEY, SUPABASE_URL } from './config';
-import type { Block, BlockTotal, Day, DayBlock, DayTotal, FullDay, Profile, Status, Task, Team } from './types';
+import type { Block, BlockTotal, Day, DayBlock, DayTotal, FullDay, LoginFace, Profile, Status, Task, Team } from './types';
 import type { ImportedDay } from './importOld';
 
 export const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -15,7 +15,7 @@ function must<T>(res: { data: T | null; error: { message: string } | null }): T 
 // People and teams -------------------------------------------------------
 
 export async function getProfile(id: string): Promise<Profile | null> {
-  return must(await db.from('profiles').select('id,name,colour,theme,share_progress').eq('id', id).maybeSingle());
+  return must(await db.from('profiles').select('id,name,colour,theme,share_progress,photo_url,focus,show_on_login').eq('id', id).maybeSingle());
 }
 
 export async function updateProfile(id: string, patch: Partial<Omit<Profile, 'id'>>) {
@@ -31,7 +31,7 @@ export async function myTeam(userId: string): Promise<Team | null> {
 
 export async function teamPeople(teamId: string): Promise<Profile[]> {
   const rows = must(
-    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress)').eq('team_id', teamId).order('joined_at'),
+    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress,photo_url,focus,show_on_login)').eq('team_id', teamId).order('joined_at'),
   ) as unknown as { profiles: Profile | null }[];
   return rows.map((r) => r.profiles).filter((p): p is Profile => !!p);
 }
@@ -42,6 +42,33 @@ export async function joinTeam(code: string) {
 
 export async function createTeam(name: string) {
   must(await db.rpc('create_team', { team_name: name }));
+}
+
+/** The public sign-in page's faces: members of teams shown there who allow it. */
+export async function loginFaces(): Promise<LoginFace[]> {
+  return must(await db.rpc('login_faces'));
+}
+
+/** Uploads my photo into my own folder and points my profile at it. Returns the new address. */
+export async function setMyPhoto(userId: string, photo: Blob, oldUrl: string | null): Promise<string> {
+  const path = `${userId}/${Date.now()}.jpg`;
+  must(await db.storage.from('avatars').upload(path, photo, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false }));
+  const url = db.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+  await updateProfile(userId, { photo_url: url });
+  await removeStoredPhoto(oldUrl);
+  return url;
+}
+
+export async function clearMyPhoto(userId: string, oldUrl: string | null) {
+  await updateProfile(userId, { photo_url: null });
+  await removeStoredPhoto(oldUrl);
+}
+
+async function removeStoredPhoto(url: string | null) {
+  const marker = '/storage/v1/object/public/avatars/';
+  if (!url?.includes(marker)) return;
+  // Best effort: a leftover old photo costs a little space, never a wrong face.
+  await db.storage.from('avatars').remove([url.split(marker)[1]]);
 }
 
 // My routine ---------------------------------------------------------------

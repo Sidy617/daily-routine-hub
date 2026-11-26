@@ -6,6 +6,17 @@ export interface Profile {
   colour: string;
   theme: string;
   share_progress: boolean | null;
+  photo_url: string | null;
+  focus: string;
+  show_on_login: boolean;
+}
+
+/** What the public sign-in page may show about a team member. */
+export interface LoginFace {
+  name: string;
+  photo_url: string | null;
+  colour: string;
+  focus: string;
 }
 
 export interface Team {
