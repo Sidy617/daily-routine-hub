@@ -1,0 +1,28 @@
+/* Original, by the first design (index.html).
+   Its colours and type kept as they were chosen: dark, cyan, monospace times,
+   capital labels. Not changed and not checked by the design rules. */
+:root[data-theme-id='original'] {
+  color-scheme: dark;
+  --bg: #030712;
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --line: #1f2937;
+  --ink: #f3f4f6;
+  --mute: #9ca3af;
+  --time: #22d3ee;
+  --primary-bg: linear-gradient(90deg, #06b6d4, #2563eb);
+  --primary-ink: #020617;
+  --done: #10b981;
+  --done-ink: #020617;
+  --half: #f59e0b;
+  --danger: #f43f5e;
+  --focus: #22d3ee;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 4px 14px rgb(6 182 212 / 8%);
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-num: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --label-case: uppercase;
+  --title-case: uppercase;
+  --title-weight: 800;
+}
