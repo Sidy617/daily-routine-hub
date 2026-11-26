@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { db, getBlocks, importDays, saveBlocks, updateProfile } from '../lib/api';
+import { clearMyPhoto, db, getBlocks, importDays, saveBlocks, setMyPhoto, updateProfile } from '../lib/api';
+import { squarePhoto } from '../lib/faces';
 import { PERSON_COLOURS } from '../lib/colours';
 import { QUARTER_HOURS, hm } from '../lib/dates';
 import { useLoad } from '../lib/hooks';
@@ -13,6 +14,37 @@ type Draft = Omit<Block, 'user_id'>;
 export function Me({ me, team, onProfile }: { me: Profile; team: Team; onProfile: (p: Profile) => void }) {
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [name, setName] = useState(me.name);
+  const [focus, setFocus] = useState(me.focus);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const textChanged = (name.trim() && name.trim() !== me.name) || focus.trim() !== me.focus;
+
+  async function changePhoto(file: File | undefined) {
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoError(null);
+    try {
+      const url = await setMyPhoto(me.id, await squarePhoto(file), me.photo_url);
+      onProfile({ ...me, photo_url: url });
+    } catch (e) {
+      setPhotoError((e as Error).message || 'Photo not saved. Check your connection.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  async function removePhoto() {
+    setPhotoBusy(true);
+    setPhotoError(null);
+    try {
+      await clearMyPhoto(me.id, me.photo_url);
+      onProfile({ ...me, photo_url: null });
+    } catch {
+      setPhotoError('Photo not removed. Check your connection.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   async function patch(p: Partial<Profile>) {
     setState('saving');
@@ -36,18 +68,44 @@ export function Me({ me, team, onProfile }: { me: Profile; team: Team; onProfile
           <h2>You</h2>
           <SaveState state={state} />
         </div>
+        <div className="photo-row">
+          <Avatar person={{ ...me, name }} size={72} />
+          <div className="row-actions">
+            <label className={`btn file-btn${photoBusy ? ' busy' : ''}`}>
+              {me.photo_url ? 'Change photo' : 'Add photo'}
+              <input type="file" accept="image/*" disabled={photoBusy} onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';
+                  changePhoto(file);
+                }}
+              />
+            </label>
+            {me.photo_url && (
+              <button className="btn ghost" disabled={photoBusy} onClick={removePhoto}>
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+        {photoBusy && <p className="quiet">Saving photo</p>}
+        {photoError && <p className="problem-line">{photoError}</p>}
         <form
-          className="name-row"
+          className="stack"
           onSubmit={(e) => {
             e.preventDefault();
-            if (name.trim() && name.trim() !== me.name) patch({ name: name.trim() });
+            if (!name.trim() || !textChanged) return;
+            patch({ name: name.trim(), focus: focus.trim() });
           }}
         >
-          <label className="field grow">
+          <label className="field">
             <span>Name</span>
             <input value={name} maxLength={40} onChange={(e) => setName(e.target.value)} />
           </label>
-          <button className="btn" disabled={!name.trim() || name.trim() === me.name}>
+          <label className="field">
+            <span>What you work on</span>
+            <input value={focus} maxLength={40} onChange={(e) => setFocus(e.target.value)} />
+          </label>
+          <button className="btn" disabled={!name.trim() || !textChanged}>
             Save
           </button>
         </form>
@@ -73,6 +131,13 @@ export function Me({ me, team, onProfile }: { me: Profile; team: Team; onProfile
             <small>Tasks, progress and evening reviews.</small>
           </span>
           <input type="checkbox" role="switch" checked={me.share_progress === true} onChange={(e) => patch({ share_progress: e.target.checked })} />
+        </label>
+        <label className="switch-row">
+          <span>
+            <b>Show me on the sign-in page</b>
+            <small>Your photo, name and what you work on. Anyone with the address sees it.</small>
+          </span>
+          <input type="checkbox" role="switch" checked={me.show_on_login} onChange={(e) => patch({ show_on_login: e.target.checked })} />
         </label>
       </section>
 

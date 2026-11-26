@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { db } from '../lib/api';
+import { useEffect, useState } from 'react';
+import { db, loginFaces } from '../lib/api';
 import { APP_NAME, ORG_NAME } from '../lib/config';
+import type { LoginFace } from '../lib/types';
 import { Segmented } from '../components/bits';
+import { TeamShowcase } from '../components/TeamShowcase';
 
 export function SignIn() {
   const [mode, setMode] = useState<'in' | 'up'>('in');
@@ -10,6 +12,14 @@ export function SignIn() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
+  const [faces, setFaces] = useState<LoginFace[]>([]);
+
+  useEffect(() => {
+    // The team's faces are a welcome, not a requirement: if they fail, the form still works.
+    loginFaces()
+      .then(setFaces)
+      .catch(() => setFaces([]));
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,54 +55,61 @@ export function SignIn() {
   })();
 
   return (
-    <main className="auth">
-      <p className="org">{ORG_NAME}</p>
-      <h1>{APP_NAME}</h1>
-      <p className="sub">{joining ? 'Sign in to join your team.' : 'Your day, and your team\'s.'}</p>
-      <Segmented
-        label="Account"
-        value={mode}
-        onChange={(m) => {
-          setMode(m);
-          setMessage(null);
-        }}
-        options={[
-          { value: 'in', label: 'Sign in' },
-          { value: 'up', label: 'New account' },
-        ]}
-      />
-      <form onSubmit={submit} className="stack">
-        {mode === 'up' && (
+    <main className={`auth-wide${faces.length ? '' : ' no-art'}`}>
+      {faces.length > 0 && (
+        <section className="auth-art">
+          <TeamShowcase faces={faces} team={ORG_NAME} />
+        </section>
+      )}
+      <section className="auth-form">
+        <p className="org">{ORG_NAME}</p>
+        <h1>{APP_NAME}</h1>
+        <p className="sub">{joining ? 'Sign in to join your team.' : "Your day, and your team's."}</p>
+        <Segmented
+          label="Account"
+          value={mode}
+          onChange={(m) => {
+            setMode(m);
+            setMessage(null);
+          }}
+          options={[
+            { value: 'in', label: 'Sign in' },
+            { value: 'up', label: 'New account' },
+          ]}
+        />
+        <form onSubmit={submit} className="stack">
+          {mode === 'up' && (
+            <label className="field">
+              <span>Name</span>
+              <input value={name} onChange={(e) => setName(e.target.value)} maxLength={40} required autoComplete="name" />
+            </label>
+          )}
           <label className="field">
-            <span>Name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={40} required autoComplete="name" />
+            <span>Email</span>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </label>
-        )}
-        <label className="field">
-          <span>Email</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-        </label>
-        <label className="field">
-          <span>Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            autoComplete={mode === 'up' ? 'new-password' : 'current-password'}
-          />
-          {mode === 'up' && <small>At least 8 characters.</small>}
-        </label>
-        {message && (
-          <p className={message.kind === 'ok' ? 'ok-line' : 'problem-line'} role="status">
-            {message.text}
-          </p>
-        )}
-        <button className="btn primary wide" disabled={busy}>
-          {mode === 'up' ? 'Create account' : 'Sign in'}
-        </button>
-      </form>
+          <label className="field">
+            <span>Password</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              autoComplete={mode === 'up' ? 'new-password' : 'current-password'}
+            />
+            {mode === 'up' && <small>At least 8 characters.</small>}
+          </label>
+          {message && (
+            <p className={message.kind === 'ok' ? 'ok-line' : 'problem-line'} role="status">
+              {message.text}
+            </p>
+          )}
+          <button className="btn primary wide" disabled={busy}>
+            {mode === 'up' ? 'Create account' : 'Sign in'}
+          </button>
+        </form>
+      </section>
     </main>
   );
 }
