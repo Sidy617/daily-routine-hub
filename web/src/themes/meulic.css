@@ -1,49 +1,112 @@
 /* Meulic, by Meulic.
-   Calm and white, black for actions, one colour per person, few words.
-   Light by day, dark when the phone is dark. Checked by scripts/check-design.mjs. */
+   Apple-like and calm: a sky that follows the time of day, frosted glass over it,
+   one tint (your own colour), compact type. Light by day, dark when the device is dark.
+   The <html> element carries data-theme-id, data-daypart (dawn, day, dusk, night) and .dark. */
+
 :root[data-theme-id='meulic'] {
   color-scheme: light;
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f5f6f8;
-  --line: #eceef2;
-  --ink: #0b0b10;
-  --mute: #6b7080;
-  --time: #6b7080;
-  --primary-bg: #0b0b10;
-  --primary-ink: #ffffff;
-  --done: #0b0b10;
-  --done-ink: #ffffff;
-  --half: #0b0b10;
-  --danger: #b42318;
-  --focus: #2563eb;
-  --radius: 12px;
-  --radius-lg: 18px;
-  --shadow: 0 1px 2px rgb(11 11 16 / 6%);
-  --font: 'Figtree', system-ui, sans-serif;
-  --font-num: 'Figtree', system-ui, sans-serif;
+  --tint: var(--person, #0a84ff);
+  --tint-ink: #ffffff;
+  --bg: #eef1f6;
+  --ink: #0b0b0f;
+  --ink-2: rgb(60 60 67 / 0.68);
+  --ink-3: rgb(60 60 67 / 0.4);
+  --line: rgb(60 60 67 / 0.13);
+  --fill: rgb(118 118 128 / 0.12);
+  --danger: #ff3b30;
+  --success: #34c759;
+
+  --glass: rgb(255 255 255 / 0.56);
+  --glass-strong: rgb(248 249 251 / 0.88);
+  --glass-border: rgb(255 255 255 / 0.62);
+  --glass-blur: 26px;
+  --glass-sat: 185%;
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.75), 0 1px 2px rgb(15 23 42 / 0.04), 0 14px 34px -16px rgb(15 23 42 / 0.24);
+  --glass-rim: inset 0 1px 0 rgb(255 255 255 / 0.85), inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  --glass-tint: rgb(255 255 255 / 0.2);
+  --glass-tint-frosted: rgb(255 255 255 / 0.5);
+  --glass-highlight: rgb(255 255 255 / 0.78);
+  --glass-foreground: var(--ink);
+
+  --r-card: 22px;
+  --r-ctl: 12px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-numeric: var(--font);
   --label-case: none;
   --title-case: none;
-  --title-weight: 700;
+  --grain: 0.035;
+
+  --wallpaper:
+    radial-gradient(90% 60% at 85% 0%, #fff3cf 0%, transparent 55%),
+    radial-gradient(120% 90% at 0% 100%, #d4e6ff 0%, transparent 60%),
+    linear-gradient(180deg, #dcebff 0%, #f3f6fb 60%, #eef2f8 100%);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root[data-theme-id='meulic'] {
-    color-scheme: dark;
-    --bg: #0b0c0e;
-    --surface: #121418;
-    --surface-2: #1a1d22;
-    --line: #23262c;
-    --ink: #f2f3f5;
-    --mute: #9aa0ab;
-    --time: #9aa0ab;
-    --primary-bg: #f2f3f5;
-    --primary-ink: #0b0c0e;
-    --done: #f2f3f5;
-    --done-ink: #0b0c0e;
-    --half: #f2f3f5;
-    --danger: #ff8a80;
-    --focus: #7aa7ff;
-    --shadow: none;
-  }
+:root[data-theme-id='meulic'][data-daypart='dawn'] {
+  --wallpaper:
+    radial-gradient(120% 80% at 0% 0%, #ffd8c4 0%, transparent 55%),
+    radial-gradient(100% 70% at 100% 8%, #ffe9b8 0%, transparent 50%),
+    linear-gradient(180deg, #f6efe9 0%, #e9eef8 100%);
+}
+
+:root[data-theme-id='meulic'][data-daypart='dusk'] {
+  --wallpaper:
+    radial-gradient(110% 70% at 100% 0%, #ffd2a6 0%, transparent 55%),
+    radial-gradient(100% 80% at 0% 30%, #ffcdc6 0%, transparent 55%),
+    linear-gradient(180deg, #f9e8df 0%, #e6e9f4 100%);
+}
+
+:root[data-theme-id='meulic'][data-daypart='night'] {
+  --wallpaper:
+    radial-gradient(120% 80% at 50% 0%, #dde6f7 0%, transparent 60%),
+    linear-gradient(180deg, #e7ebf3 0%, #f1f3f8 100%);
+}
+
+/* Dark: the same sky at night. */
+:root[data-theme-id='meulic'].dark {
+  color-scheme: dark;
+  --bg: #07090d;
+  --ink: #f5f5f7;
+  --ink-2: rgb(235 235 245 / 0.64);
+  --ink-3: rgb(235 235 245 / 0.34);
+  --line: rgb(255 255 255 / 0.09);
+  --fill: rgb(118 118 128 / 0.24);
+  --danger: #ff453a;
+  --success: #30d158;
+
+  --glass: rgb(32 34 40 / 0.5);
+  --glass-strong: rgb(26 28 33 / 0.9);
+  --glass-border: rgb(255 255 255 / 0.09);
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 18px 44px -20px rgb(0 0 0 / 0.75);
+  --glass-rim: inset 0 1px 0 rgb(255 255 255 / 0.14), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --glass-tint: rgb(255 255 255 / 0.05);
+  --glass-tint-frosted: rgb(44 46 52 / 0.55);
+  --glass-highlight: rgb(255 255 255 / 0.16);
+  --grain: 0.05;
+
+  --wallpaper:
+    radial-gradient(90% 70% at 80% 0%, rgb(70 130 255 / 0.3) 0%, transparent 60%),
+    radial-gradient(70% 60% at 0% 100%, rgb(40 180 170 / 0.18) 0%, transparent 60%),
+    #06080c;
+}
+
+:root[data-theme-id='meulic'].dark[data-daypart='dawn'] {
+  --wallpaper:
+    radial-gradient(90% 60% at 0% 0%, rgb(255 140 90 / 0.28) 0%, transparent 60%),
+    radial-gradient(80% 60% at 100% 100%, rgb(60 110 200 / 0.25) 0%, transparent 60%),
+    #07090d;
+}
+
+:root[data-theme-id='meulic'].dark[data-daypart='dusk'] {
+  --wallpaper:
+    radial-gradient(90% 60% at 100% 0%, rgb(255 150 60 / 0.26) 0%, transparent 60%),
+    radial-gradient(80% 70% at 0% 40%, rgb(230 80 90 / 0.18) 0%, transparent 60%),
+    #080709;
+}
+
+:root[data-theme-id='meulic'].dark[data-daypart='night'] {
+  --wallpaper:
+    radial-gradient(100% 70% at 50% 0%, rgb(50 90 180 / 0.26) 0%, transparent 65%),
+    #05060a;
 }
