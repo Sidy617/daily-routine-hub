@@ -1,17 +1,37 @@
+import { useId } from 'react';
 import { ORG_NAME, APP_NAME } from '@/lib/config';
 import { cn, rem } from '@/lib/utils';
 
-/** The Simulation logo: the orange rings, cut from the brand picture (web/public/logo.png). */
+// The Simulation logo, drawn from the brand picture: a ring holding four bars, three of them
+// turning back round the centre and the last opening into a leaf. Same drawing as public/icon.svg.
+export const LOGO_PATHS = [
+  'M52.3 32H110A78 78 0 1 1 32 110',
+  'M28.1 58H110A52 52 0 1 1 58 110',
+  'M16.6 84H110A26 26 0 0 1 136 110C136 132 128 148 115 153',
+  'M13 110H91C106 110 120 124 115 153',
+  'M67 110C67 135 90 153 115 153',
+];
+
+/** The Simulation logo, as drawn: orange line rings, no tile behind. */
 export function BrandMark({ size = 36, className }: { size?: number; className?: string }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const fill = `sim-logo-${uid}`;
   return (
-    <img
-      src={`${import.meta.env.BASE_URL}logo.png`}
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-      className={cn('shrink-0 select-none rounded-[22%] object-cover shadow-sm ring-1 ring-black/5', className)}
-      style={{ width: rem(size), height: rem(size) }}
-    />
+    <svg viewBox="0 0 220 220" className={cn('shrink-0', className)} style={{ width: rem(size), height: rem(size) }} aria-hidden="true">
+      <defs>
+        <linearGradient id={fill} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ff8a3d" />
+          <stop offset="1" stopColor="#e5560c" />
+        </linearGradient>
+      </defs>
+      {/* Thicker lines on small marks so they stay solid. */}
+      <g fill="none" stroke={`url(#${fill})`} strokeWidth={size < 44 ? 9 : 7} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="110" cy="110" r="97" />
+        {LOGO_PATHS.map((d) => (
+          <path key={d} d={d} />
+        ))}
+      </g>
+    </svg>
   );
 }
 
