@@ -15,7 +15,7 @@ function must<T>(res: { data: T | null; error: { message: string } | null }): T 
 // People and teams -------------------------------------------------------
 
 export async function getProfile(id: string): Promise<Profile | null> {
-  return must(await db.from('profiles').select('id,name,colour,theme,share_progress,photo_url,focus,show_on_login').eq('id', id).maybeSingle());
+  return must(await db.from('profiles').select('id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login').eq('id', id).maybeSingle());
 }
 
 export async function updateProfile(id: string, patch: Partial<Omit<Profile, 'id'>>) {
@@ -31,7 +31,7 @@ export async function myTeam(userId: string): Promise<Team | null> {
 
 export async function teamPeople(teamId: string): Promise<Profile[]> {
   const rows = must(
-    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress,photo_url,focus,show_on_login)').eq('team_id', teamId).order('joined_at'),
+    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login)').eq('team_id', teamId).order('joined_at'),
   ) as unknown as { profiles: Profile | null }[];
   return rows.map((r) => r.profiles).filter((p): p is Profile => !!p);
 }
@@ -46,7 +46,7 @@ export async function createTeam(name: string) {
 
 /** The public sign-in page's faces: members of teams shown there who allow it. */
 export async function loginFaces(): Promise<LoginFace[]> {
-  return must(await db.rpc('login_faces'));
+  return must(await db.rpc('login_faces_v2'));
 }
 
 /** Uploads my photo into my own folder and points my profile at it. Returns the new address. */
@@ -168,6 +168,44 @@ export async function getWeekGoals(userId: string, weekStart: string): Promise<s
 
 export async function saveWeekGoals(userId: string, weekStart: string, goals: string) {
   must(await db.from('week_goals').upsert({ user_id: userId, week_start: weekStart, goals }));
+}
+
+// Carrying unfinished tasks over --------------------------------------------
+
+export interface Unfinished {
+  text: string;
+  note: string;
+  block: string;
+}
+
+/** Tasks I left not done on a date, with the name of their block. */
+export async function unfinishedOn(userId: string, date: string): Promise<Unfinished[]> {
+  const day = must(await db.from('days').select('id').eq('user_id', userId).eq('date', date).maybeSingle()) as { id: string } | null;
+  if (!day) return [];
+  const [tasks, blocks] = await Promise.all([
+    db.from('tasks').select('text,note,status,day_block_id,position').eq('day_id', day.id).neq('status', 'done').order('position'),
+    db.from('day_blocks').select('id,name').eq('day_id', day.id),
+  ]);
+  const names = new Map((must(blocks) as { id: string; name: string }[]).map((b) => [b.id, b.name]));
+  return (must(tasks) as (Pick<Task, 'text' | 'note' | 'day_block_id'> & { status: Status })[]).map((t) => ({
+    text: t.text,
+    note: t.note,
+    block: names.get(t.day_block_id) ?? '',
+  }));
+}
+
+/** Copies tasks into my day: into the block with the same name, else the first block. Returns the new tasks. */
+export async function bringOver(full: FullDay, items: Unfinished[]): Promise<Task[]> {
+  if (!full.blocks.length || !items.length) return [];
+  const byName = new Map(full.blocks.map((b) => [b.name.trim().toLowerCase(), b.id]));
+  const rows = items.map((t, i) => ({
+    day_id: full.day.id,
+    day_block_id: byName.get(t.block.trim().toLowerCase()) ?? full.blocks[0].id,
+    text: t.text,
+    note: t.note,
+    position: 100 + i,
+  }));
+  return must(await db.from('tasks').insert(rows).select('*')) as Task[];
 }
 
 // Bringing days from the first design --------------------------------------

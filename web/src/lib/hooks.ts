@@ -4,7 +4,7 @@ export type Route =
   | { name: 'today'; date?: string }
   | { name: 'team'; view: 'day' | 'week' }
   | { name: 'person'; id: string; view: 'day' | 'week' | 'month'; date?: string }
-  | { name: 'me' };
+  | { name: 'me'; open?: 'day' };
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -13,7 +13,7 @@ export function parseHash(hash: string): Route {
   const date = (s?: string) => (s && ISO.test(s) ? s : undefined);
   if (parts[0] === 'day') return { name: 'today', date: date(parts[1]) };
   if (parts[0] === 'team') return { name: 'team', view: parts[1] === 'week' ? 'week' : 'day' };
-  if (parts[0] === 'me') return { name: 'me' };
+  if (parts[0] === 'me') return parts[1] === 'day' ? { name: 'me', open: 'day' } : { name: 'me' };
   if (parts[0] === 'p' && parts[1]) {
     const view = parts[2] === 'week' || parts[2] === 'month' ? parts[2] : 'day';
     return { name: 'person', id: parts[1], view, date: date(parts[3]) };

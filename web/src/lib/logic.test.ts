@@ -1,8 +1,47 @@
 import { describe, expect, it } from 'vitest';
 import { addDays, monthGrid, weekDays, weekStart, isSunday } from './dates';
-import { mostMissed, score, activeDays } from './stats';
+import { mostMissed, score, activeDays, streak } from './stats';
 import { convertOldDay, isDemo, isUntouchedSample, isoWeekToMonday, readOldDays, type OldDay } from './importOld';
 import type { BlockTotal, DayTotal } from './types';
+import { blockNow, duration } from './now';
+import { avatarKey, splitKey } from './avatars';
+
+describe('now', () => {
+  const day = [
+    { starts: '06:00:00', ends: '06:15:00' },
+    { starts: '07:00:00', ends: '16:00:00' },
+    { starts: '23:30:00', ends: '00:00:00' },
+  ];
+  it('finds the block happening now and the time left', () => {
+    expect(blockNow(day, 8 * 60)).toEqual({ current: 1, next: 2, left: 8 * 60, until: 15 * 60 + 30 });
+  });
+  it('knows the next block between blocks', () => {
+    const r = blockNow(day, 6 * 60 + 30);
+    expect(r.current).toBe(-1);
+    expect(r.next).toBe(1);
+    expect(r.until).toBe(30);
+  });
+  it('runs a block ending at midnight to the end of the day', () => {
+    expect(blockNow(day, 23 * 60 + 45).current).toBe(2);
+  });
+  it('writes durations shortly', () => {
+    expect(duration(130)).toBe('2h 10m');
+    expect(duration(45)).toBe('45m');
+    expect(duration(60)).toBe('1h');
+  });
+});
+
+describe('avatars', () => {
+  it('keeps a valid choice and never guesses a skin tone', () => {
+    expect(avatarKey({ name: 'Juma', avatar: 'student-medium-dark' })).toBe('student-medium-dark');
+    expect(avatarKey({ name: 'Juma', avatar: 'nonsense' })).toMatch(/-default$/);
+    expect(avatarKey({ name: 'Juma' })).toBe(avatarKey({ name: ' juma ' }));
+  });
+  it('splits keys with two-word tones and characters', () => {
+    expect(splitKey('office-worker-medium-light')).toEqual({ character: 'office-worker', tone: 'medium-light' });
+    expect(splitKey('person-dark')).toEqual({ character: 'person', tone: 'dark' });
+  });
+});
 
 describe('dates', () => {
   it('starts weeks on Monday', () => {
@@ -35,6 +74,13 @@ describe('stats', () => {
     expect(mostMissed([row('Study', 2, 0)])).toBeNull(); // too few tasks to say
     expect(mostMissed([row('Study', 4, 4), row('Security', 2, 0), row('Security', 2, 1)])).toBe('Security');
     expect(mostMissed([row('Study', 4, 4), row('Gym', 4, 4)])).toBeNull(); // nothing missed
+  });
+  it('counts a streak back from today, or from yesterday before anything is ticked today', () => {
+    const r = (date: string, done: number) => ({ date, done, half: 0 });
+    const rows = [r('2026-11-24', 2), r('2026-11-25', 1), r('2026-11-26', 3)];
+    expect(streak(rows, '2026-11-26', addDays)).toBe(3);
+    expect(streak(rows, '2026-11-27', addDays)).toBe(3);
+    expect(streak([...rows, r('2026-11-27', 0)], '2026-11-28', addDays)).toBe(0);
   });
   it('counts active days', () => {
     const d = (done: number): DayTotal => ({ day_id: 'x', user_id: 'u', date: '2026-11-26', updated_at: '', total: 3, done, half: 0 });

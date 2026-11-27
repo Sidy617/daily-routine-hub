@@ -7,6 +7,7 @@ export interface Profile {
   theme: string;
   share_progress: boolean | null;
   photo_url: string | null;
+  avatar: string | null;
   focus: string;
   show_on_login: boolean;
 }
@@ -15,6 +16,7 @@ export interface Profile {
 export interface LoginFace {
   name: string;
   photo_url: string | null;
+  avatar: string | null;
   colour: string;
   focus: string;
 }

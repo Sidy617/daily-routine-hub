@@ -21,6 +21,21 @@ export function activeDays(rows: DayTotal[]): number {
 }
 
 /**
+ * Days in a row with at least one task done or half done, ending today
+ * (or yesterday, when today has nothing ticked yet).
+ */
+export function streak(rows: { date: string; done: number; half: number }[], today: string, addDays: (iso: string, n: number) => string): number {
+  const active = new Set(rows.filter((r) => r.done + r.half > 0).map((r) => r.date));
+  let day = active.has(today) ? today : addDays(today, -1);
+  let n = 0;
+  while (active.has(day)) {
+    n++;
+    day = addDays(day, -1);
+  }
+  return n;
+}
+
+/**
  * The block most often left undone, by name, across the given days.
  * Needs at least 3 tasks under a name before it is named; otherwise null,
  * so we never say something we are not sure of.

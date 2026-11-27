@@ -5,17 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Simulation Routine</title>
     <meta name="description" content="Daily routine for the Simulation team: your day, your team's, and every day kept." />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#eef1f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap" rel="stylesheet" />
     <script>
-      // Paint the saved theme before anything shows, so there is no flash.
-      try {
-        document.documentElement.dataset.themeId = localStorage.getItem('theme') || 'meulic';
-      } catch (e) {
-        document.documentElement.dataset.themeId = 'meulic';
-      }
+      // Paint the saved theme, its light or dark, and the time of day before anything shows.
+      (function () {
+        var root = document.documentElement;
+        var theme = 'meulic';
+        var colour = '';
+        try {
+          theme = localStorage.getItem('theme') || 'meulic';
+          colour = localStorage.getItem('person-colour') || '';
+        } catch (e) {}
+        root.dataset.themeId = theme;
+        var dark = theme === 'original' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) root.classList.add('dark');
+        if (colour) root.style.setProperty('--person', colour);
+        var h = new Date().getHours();
+        root.dataset.daypart = h >= 5 && h < 9 ? 'dawn' : h >= 9 && h < 16 ? 'day' : h >= 16 && h < 19 ? 'dusk' : 'night';
+      })();
     </script>
   </head>
   <body>

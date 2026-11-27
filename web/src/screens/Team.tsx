@@ -1,29 +1,46 @@
 import { useState } from 'react';
-import { blockTotals, dayTotals, reviewsOn } from '../lib/api';
-import { addDays, clock, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '../lib/dates';
-import { go, useLoad } from '../lib/hooks';
-import { mostMissed, pct, score, sumTotals } from '../lib/stats';
-import type { Profile, Team } from '../lib/types';
-import { Arrows, Avatar, Header, Loading, Problem, Ribbon, Segmented } from '../components/bits';
+import { motion } from 'motion/react';
+import { ChevronLeft, ChevronRight, Copy, Lock, Share2, UserPlus } from 'lucide-react';
+import { blockTotals, dayTotals, reviewsOn } from '@/lib/api';
+import { addDays, clock, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
+import { personStyle } from '@/lib/colours';
+import { go, useLoad } from '@/lib/hooks';
+import { mostMissed, pct, score, sumTotals } from '@/lib/stats';
+import type { BlockTotal, Profile, Team } from '@/lib/types';
+import { Avatar, AvatarCircles } from '@/components/Avatar';
+import { Ring } from '@/components/Ring';
+import { LargeTitle, Screen, stagger } from '@/components/Screen';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/field';
+import { GlassTabs, GlassTabsList, GlassTabsTrigger } from '@/components/ui/glass-tabs';
+import { Sheet } from '@/components/ui/sheet';
+import { toast } from '@/components/ui/toast';
 
-const canSee = (p: Profile, me: Profile) => p.id === me.id || p.share_progress === true;
+import { canSee } from '@/lib/people';
 
 export function TeamScreen({ me, team, people, view }: { me: Profile; team: Team; people: Profile[]; view: 'day' | 'week' }) {
+  const [invite, setInvite] = useState(false);
+  const sharing = people.filter((p) => canSee(p, me)).length;
   return (
-    <>
-      <Header title={team.name} sub={`${people.length} ${people.length === 1 ? 'person' : 'people'}`} />
-      <Segmented
-        label="Show"
-        value={view}
-        onChange={(v) => go(v === 'week' ? '/team/week' : '/team')}
-        options={[
-          { value: 'day', label: 'Today' },
-          { value: 'week', label: 'Week' },
-        ]}
+    <Screen>
+      <LargeTitle
+        eyebrow={`${people.length} ${people.length === 1 ? 'person' : 'people'}, ${sharing} sharing`}
+        title={team.name}
+        right={
+          <Button variant="glass" size="icon" aria-label="Invite someone" onClick={() => setInvite(true)}>
+            <UserPlus />
+          </Button>
+        }
       />
+      <GlassTabs value={view} onValueChange={(v) => go(v === 'week' ? '/team/week' : '/team')}>
+        <GlassTabsList className="w-full">
+          <GlassTabsTrigger value="day">Today</GlassTabsTrigger>
+          <GlassTabsTrigger value="week">This week</GlassTabsTrigger>
+        </GlassTabsList>
+      </GlassTabs>
       {view === 'day' ? <TeamToday me={me} people={people} /> : <TeamWeek me={me} people={people} />}
-      <Invite team={team} />
-    </>
+      <InviteSheet open={invite} onOpenChange={setInvite} team={team} people={people} />
+    </Screen>
   );
 }
 
@@ -32,47 +49,63 @@ function TeamToday({ me, people }: { me: Profile; people: Profile[] }) {
   const ids = people.map((p) => p.id);
   const { data, error, reload } = useLoad(
     async () => {
-      const [days, blocks, reviews] = await Promise.all([dayTotals(ids, today, today), blockTotals(ids, today, today), reviewsOn(ids, today)]);
-      return { days, blocks, reviews };
+      const [days, reviews] = await Promise.all([dayTotals(ids, today, today), reviewsOn(ids, today)]);
+      return { days, reviews };
     },
     [ids.join(','), today],
   );
-  if (error) return <Problem text={error} retry={reload} />;
-  if (!data) return <Loading />;
+  if (error)
+    return (
+      <div className="glass rounded-card p-4">
+        <p>{error}</p>
+        <Button variant="plain" size="bare" className="mt-2" onClick={reload}>
+          Try again
+        </Button>
+      </div>
+    );
   return (
-    <ul className="people">
+    <motion.ul variants={stagger.container} initial="initial" animate="animate" className="glass divide-y divide-line overflow-hidden rounded-card">
       {people.map((p) => {
-        const day = data.days.find((d) => d.user_id === p.id);
-        const blocks = data.blocks.filter((b) => b.user_id === p.id);
-        const review = data.reviews.find((r) => r.user_id === p.id);
+        const day = data?.days.find((d) => d.user_id === p.id);
+        const review = data?.reviews.find((r) => r.user_id === p.id);
         const line = review?.missed.split('\n')[0] || review?.tomorrow.split('\n')[0] || '';
         const visible = canSee(p, me);
-        const status = !visible ? 'Keeps their days private' : !day || !day.total ? 'Nothing yet today' : `Updated ${clock(day.updated_at)}`;
-        const body = (
+        const status = !visible ? 'Keeps their days private' : !data ? ' ' : !day || !day.total ? 'Nothing yet today' : `Updated ${clock(day.updated_at)}`;
+        const inner = (
           <>
-            <div className="person-head">
-              <Avatar person={p} />
-              <div className="person-name">
-                <b>{p.id === me.id ? `${p.name || 'Me'} (you)` : p.name || 'No name yet'}</b>
-                <small>{status}</small>
-              </div>
-              {visible && day && day.total > 0 && (
-                <span className="person-count">
-                  {day.done} of {day.total}
-                </span>
-              )}
-            </div>
-            {visible && <Ribbon blocks={blocks} colour={p.colour} />}
-            {visible && line && <p className="person-line">{line}</p>}
+            <Avatar person={p} size={48} />
+            <span className="min-w-0 flex-1">
+              <span className="title-case flex items-baseline gap-1.5 text-head font-semibold text-ink">
+                <span className="truncate">{p.name || 'No name yet'}</span>
+                {p.id === me.id && <span className="shrink-0 text-sub font-normal text-ink-2">You</span>}
+              </span>
+              <span className="block truncate text-sub text-ink-2">{p.focus ? `${p.focus}. ${status}` : status}</span>
+              {visible && line && <span className="block truncate text-sub text-ink-2">{line}</span>}
+            </span>
+            {visible ? (
+              <Ring value={day && day.total ? score(day) : 0} size={42} stroke={4.5} colour={p.colour} label={day ? `${day.done} of ${day.total}` : 'No tasks'}>
+                <span className="text-cap font-semibold tracking-tight text-ink-2">{day && day.total ? `${pct(score(day))}%` : ''}</span>
+              </Ring>
+            ) : (
+              <span className="grid size-[42px] place-items-center rounded-full bg-fill text-ink-2">
+                <Lock className="size-4" />
+              </span>
+            )}
           </>
         );
         return (
-          <li key={p.id} className="person">
-            {visible ? <a href={`#/p/${p.id}/day/${today}`}>{body}</a> : <div>{body}</div>}
-          </li>
+          <motion.li key={p.id} variants={stagger.item}>
+            {visible ? (
+              <a href={`#/p/${p.id}/day/${today}`} className="flex items-center gap-3.5 px-4 py-3 transition-colors hover:bg-fill/60 active:bg-fill">
+                {inner}
+              </a>
+            ) : (
+              <div className="flex items-center gap-3.5 px-4 py-3">{inner}</div>
+            )}
+          </motion.li>
         );
       })}
-    </ul>
+    </motion.ul>
   );
 }
 
@@ -81,112 +114,141 @@ function TeamWeek({ me, people }: { me: Profile; people: Profile[] }) {
   const days = weekDays(anchor);
   const from = days[0];
   const to = days[6];
-  const ids = people.filter((p) => canSee(p, me)).map((p) => p.id);
-  const { data, error, reload } = useLoad(async () => {
+  const shown = people.filter((p) => canSee(p, me));
+  const ids = shown.map((p) => p.id);
+  const { data } = useLoad(async () => {
     const [totals, blocks] = await Promise.all([dayTotals(ids, from, to), blockTotals(ids, from, to)]);
     return { totals, blocks };
   }, [ids.join(','), from]);
   const thisWeek = weekStart(todayISO()) === from;
 
   return (
-    <section className="week">
-      <div className="range-head">
-        <h2>{thisWeek ? 'This week' : rangeLabel(from, to)}</h2>
-        <Arrows label="Change week" onPrev={() => setAnchor(addDays(from, -7))} onNext={() => setAnchor(addDays(from, 7))} nextDisabled={thisWeek} />
-      </div>
-      {error && <Problem text={error} retry={reload} />}
-      {!error && !data && <Loading />}
-      {data && (
-        <>
-          <div className="grid-scroll">
-            <table className="week-grid">
-              <thead>
-                <tr>
-                  <th scope="col">
-                    <span className="sr">Person</span>
-                  </th>
-                  {days.map((d) => (
-                    <th key={d} scope="col">
-                      {shortDay(d).split(' ')[0].slice(0, 1)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {people.filter((p) => canSee(p, me)).map((p) => (
-                  <tr key={p.id}>
-                    <th scope="row">
-                      <a href={`#/p/${p.id}/week/${from}`}>{p.id === me.id ? 'You' : p.name || 'No name'}</a>
-                    </th>
-                    {days.map((d) => {
-                      const t = data.totals.find((x) => x.user_id === p.id && x.date === d);
-                      const s = t ? score(t) : 0;
-                      return (
-                        <td key={d}>
-                          <a
-                            href={`#/p/${p.id}/day/${d}`}
-                            className="cell"
-                            style={t && t.total ? { background: p.colour, opacity: 0.18 + s * 0.82 } : undefined}
-                            aria-label={t ? `${shortDay(d)}: ${t.done} of ${t.total}` : `${shortDay(d)}: no record`}
-                          />
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <WeekSummary totals={data.totals} blocks={data.blocks} who="the team's" />
-          {people.some((p) => !canSee(p, me)) && <p className="quiet">People who keep their days private are not counted.</p>}
-        </>
+    <motion.div variants={stagger.container} initial="initial" animate="animate" className="flex flex-col gap-3">
+      <motion.section variants={stagger.item} className="glass rounded-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="title-case text-head font-semibold">{thisWeek ? 'This week' : rangeLabel(from, to)}</h2>
+          <span className="flex gap-1">
+            <button type="button" aria-label="Earlier week" onClick={() => setAnchor(addDays(from, -7))} className="grid size-8 place-items-center rounded-full text-tint hover:bg-fill">
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Later week"
+              disabled={thisWeek}
+              onClick={() => setAnchor(addDays(from, 7))}
+              className="grid size-8 place-items-center rounded-full text-tint hover:bg-fill disabled:text-ink-3"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          </span>
+        </div>
+        <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,minmax(0,34px))] items-center gap-x-1.5 gap-y-2">
+          <span />
+          {days.map((d) => (
+            <span key={d} className="text-center text-cap font-semibold text-ink-2">
+              {shortDay(d).slice(0, 1)}
+            </span>
+          ))}
+          {shown.map((p) => (
+            <WeekRow key={p.id} p={p} me={me} days={days} totals={data?.totals ?? []} />
+          ))}
+        </div>
+      </motion.section>
+      {data && <WeekSummary totals={data.totals} blocks={data.blocks} who="the team's" />}
+      {people.length > shown.length && (
+        <p className="px-4 text-sub text-ink-2">People who keep their days private are not counted.</p>
       )}
-    </section>
+    </motion.div>
   );
 }
 
-export function WeekSummary({ totals, blocks, who }: { totals: { total: number; done: number; half: number }[]; blocks: Parameters<typeof mostMissed>[0]; who: string }) {
+function WeekRow({ p, me, days, totals }: { p: Profile; me: Profile; days: string[]; totals: { user_id: string; date: string; total: number; done: number; half: number }[] }) {
+  return (
+    <>
+      <a href={`#/p/${p.id}/week/${days[0]}`} className="flex min-w-0 items-center gap-2">
+        <Avatar person={p} size={26} />
+        <span className="title-case truncate text-sub font-medium">{p.id === me.id ? 'You' : p.name}</span>
+      </a>
+      {days.map((d) => {
+        const t = totals.find((x) => x.user_id === p.id && x.date === d);
+        const s = t && t.total ? score(t) : null;
+        return (
+          <a
+            key={d}
+            href={`#/p/${p.id}/day/${d}`}
+            aria-label={t ? `${p.name}, ${shortDay(d)}: ${t.done} of ${t.total}` : `${p.name}, ${shortDay(d)}: no record`}
+            className="person-colour aspect-square rounded-[9px] bg-fill transition-transform hover:scale-105"
+            style={personStyle(p.colour, s !== null ? { background: `color-mix(in srgb, var(--mark) ${Math.round(22 + s * 78)}%, transparent)` } : {})}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+export function WeekSummary({ totals, blocks, who }: { totals: { total: number; done: number; half: number }[]; blocks: BlockTotal[]; who: string }) {
   const sum = sumTotals(totals);
-  if (!sum.total) return <p className="quiet">No tasks recorded in this period.</p>;
+  if (!sum.total) return <p className="px-4 text-sub text-ink-2">No tasks recorded in this period.</p>;
   const missed = mostMissed(blocks);
   return (
-    <div className="summary">
-      <p className="big">{pct(score(sum))}%</p>
-      <p>
-        of {who} tasks done{sum.half ? ', half-done ones counted as half' : ''}.
+    <motion.section variants={stagger.item} className="glass flex items-center gap-4 rounded-card p-4">
+      <Ring value={score(sum)} size={58} stroke={6}>
+        <span className="text-sub font-semibold">{pct(score(sum))}%</span>
+      </Ring>
+      <p className="min-w-0 flex-1 text-sub text-ink-2">
+        Of {who} tasks done{sum.half ? ', half done counts as half' : ''}.
         {missed && (
           <>
             {' '}
-            <b>{missed}</b> is the block most often missed.
+            <span className="font-semibold text-ink">{missed}</span> is missed most.
           </>
         )}
       </p>
-    </div>
+    </motion.section>
   );
 }
 
-function Invite({ team }: { team: Team }) {
-  const link = `${window.location.origin}/?join=${team.invite_code}`;
-  const [copied, setCopied] = useState<'no' | 'yes' | 'failed'>('no');
+function InviteSheet({ open, onOpenChange, team, people }: { open: boolean; onOpenChange: (o: boolean) => void; team: Team; people: Profile[] }) {
+  const link = `${window.location.origin}${window.location.pathname}?join=${team.invite_code}`;
+  const canShare = typeof navigator.share === 'function';
   return (
-    <section className="invite">
-      <h2>Invite someone</h2>
-      <p className="quiet">Anyone with this link can join {team.name} after signing in.</p>
-      <div className="invite-row">
-        <code>{link}</code>
-        <button
-          className="btn"
-          onClick={() =>
-            navigator.clipboard
-              .writeText(link)
-              .then(() => setCopied('yes'))
-              .catch(() => setCopied('failed'))
-          }
-        >
-          {copied === 'yes' ? 'Copied' : 'Copy'}
-        </button>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={`Invite to ${team.name}`}
+      right={
+        <Button variant="plain" size="bare" className="font-semibold" onClick={() => onOpenChange(false)}>
+          Done
+        </Button>
+      }
+    >
+      <div className="flex flex-col items-center gap-4 pb-2 text-center">
+        <AvatarCircles people={people} max={6} size={44} />
+        <p className="text-sub text-ink-2">Anyone with this link joins {team.name} after signing in.</p>
+        <Input readOnly value={link} onFocus={(e) => e.currentTarget.select()} className="tabular text-center text-sub" aria-label="Invite link" />
+        <div className="grid w-full grid-cols-2 gap-2">
+          <Button
+            variant="quiet"
+            size="lg"
+            onClick={() =>
+              navigator.clipboard
+                .writeText(link)
+                .then(() => toast('Link copied'))
+                .catch(() => toast('Could not copy. Select the link and copy it.', true))
+            }
+          >
+            <Copy /> Copy
+          </Button>
+          <Button
+            variant="tint"
+            size="lg"
+            disabled={!canShare}
+            onClick={() => navigator.share?.({ title: `Join ${team.name}`, text: `Join ${team.name} on Routine`, url: link }).catch(() => undefined)}
+          >
+            <Share2 /> Share
+          </Button>
+        </div>
       </div>
-      {copied === 'failed' && <p className="problem-line">Could not copy. Select the link and copy it.</p>}
-    </section>
+    </Sheet>
   );
 }
