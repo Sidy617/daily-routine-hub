@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '../themes/meulic.css';
+@import '../themes/white.css';
 @import '../themes/original.css';
 
 /* Dark is a class on <html>, set from the theme and the device. */
@@ -68,7 +69,7 @@
   --text-body--letter-spacing: -0.006em;
   --text-sub: 0.875rem;
   --text-sub--line-height: 1.35;
-  --text-cap: 0.75rem;
+  --text-cap: max(0.75rem, 11px);
   --text-cap--line-height: 1.25;
   --text-cap--letter-spacing: 0.01em;
 
@@ -88,6 +89,8 @@
 
 @layer base {
   html {
+    /* Size on this device (Me, Appearance). Everything is in rem, so this one number scales the app. */
+    font-size: calc(var(--app-size, 1) * 100%);
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
@@ -110,12 +113,12 @@
   ::selection {
     background: color-mix(in srgb, var(--tint) 28%, transparent);
   }
-  /* Phones zoom into inputs under 16px; keep them at 16px on touch screens. */
+  /* Phones zoom into inputs under 16px; keep them at least 16px on touch screens, larger with the app. */
   @media (pointer: coarse) {
     input,
     textarea,
     select {
-      font-size: 16px !important;
+      font-size: max(16px, 1rem) !important;
     }
   }
 }
@@ -159,6 +162,38 @@
   overflow: hidden;
   background: var(--wallpaper);
 }
+/* The sky of this minute. A theme gives each phase of the day its colours: --phase-<phase>-top,
+   -horizon, -sun and -glow, for night, dawn, morning, noon, afternoon, sunset and dusk.
+   Wallpaper.tsx says which two phases it is between (--sky-a-*, --sky-b-*) and how far (--sky-t),
+   and where the sun or moon is (--sun-x, --sun-y, and data-sun up or down on <html>). */
+:root {
+  --sky-top: color-mix(in oklab, var(--sky-a-top), var(--sky-b-top) var(--sky-t));
+  --sky-horizon: color-mix(in oklab, var(--sky-a-horizon), var(--sky-b-horizon) var(--sky-t));
+  --sky-sun: color-mix(in oklab, var(--sky-a-sun), var(--sky-b-sun) var(--sky-t));
+  --sky-glow: color-mix(in oklab, var(--sky-a-glow), var(--sky-b-glow) var(--sky-t));
+}
+/* The sun (or moon) and the stars are layers of the wallpaper; themes paint them. */
+.wallpaper > * {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* When the app opens, the sun rises into its place. */
+@keyframes sun-rise {
+  from {
+    transform: translate3d(0, 18%, 0);
+    opacity: 0;
+  }
+}
+@keyframes twinkle {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
 /* A theme may put slow lights over its sky on .wallpaper::before and move them with sky-drift
    (Meulic does). Only the layer's position moves, in small steps, so the glass above it is redrawn
    a few times a second rather than every frame. */

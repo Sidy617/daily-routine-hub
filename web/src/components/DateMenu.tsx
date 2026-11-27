@@ -32,7 +32,7 @@ export function DateMenu({ meId, date, children }: { meId: string; date: string;
         <span className="truncate">{children}</span>
         <ChevronDown className="mt-1 size-5 shrink-0 text-ink-3 transition-transform duration-300 group-data-[state=open]:rotate-180" />
       </PopoverTrigger>
-      <PopoverContent className="w-[308px]">
+      <PopoverContent className="w-[19.25rem]">
         <div className="mb-2 flex items-center justify-between px-1">
           <span className="title-case text-head font-semibold">{monthLabel(month)}</span>
           <span className="flex gap-1">

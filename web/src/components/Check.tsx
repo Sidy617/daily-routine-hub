@@ -7,7 +7,7 @@ const WORD: Record<Status, string> = { todo: 'Not started', half: 'Half done', d
 /** A task's mark: an empty ring, half filled, or filled with a drawn tick. Springs when tapped. */
 export function Check({ status, onToggle, label, className }: { status: Status; onToggle?: () => void; label: string; className?: string }) {
   const mark = (
-    <svg viewBox="0 0 24 24" className="size-[23px]" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="size-[1.4375rem]" aria-hidden="true">
       <circle cx="12" cy="12" r="10.25" fill="none" strokeWidth="1.6" className={status === 'todo' ? 'stroke-ink-3' : 'stroke-tint'} />
       {status === 'half' && <path d="M12 1.75a10.25 10.25 0 0 1 0 20.5z" className="fill-tint-fill" />}
       {status === 'done' && (

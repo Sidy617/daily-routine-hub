@@ -1,7 +1,10 @@
 /* Meulic, by Meulic.
-   Apple-like and calm: a sky that follows the time of day, frosted glass over it,
-   one tint (your own colour), compact type. Light by day, dark when the device is dark.
-   The <html> element carries data-theme-id, data-daypart (dawn, day, dusk, night) and .dark. */
+   Apple-like and calm: a sky that follows the sun, frosted glass over it, one tint (your own colour).
+   Light by day, dark when the device is dark.
+   The sun rises at the left in the morning, is highest at midday and sets at the right, and the sky's
+   colours move with it through dawn, morning, noon, afternoon, sunset, dusk and night (Wallpaper.tsx
+   blends them a minute at a time). On dark nights, a few stars come out.
+   The <html> element carries data-theme-id, data-sun (up or down) and .dark. */
 
 :root[data-theme-id='meulic'] {
   color-scheme: light;
@@ -40,60 +43,40 @@
   --title-case: none;
   --grain: 0.035;
 
-  --wallpaper:
-    radial-gradient(90% 60% at 85% 0%, #fff3cf 0%, transparent 55%),
-    radial-gradient(120% 90% at 0% 100%, #d4e6ff 0%, transparent 60%),
-    linear-gradient(180deg, #dcebff 0%, #f3f6fb 60%, #eef2f8 100%);
-  /* Two soft lights that drift slowly across the sky (see .wallpaper in app.css). */
-  --glow-1: rgb(255 214 140 / 0.5);
-  --glow-2: rgb(130 180 255 / 0.42);
+  /* The day in light: the sky at the top and at the horizon, the sun's light, a glow that drifts. */
+  --phase-night-top: #dde4f0;
+  --phase-night-horizon: #eef1f7;
+  --phase-night-sun: rgb(255 255 255 / 0.85);
+  --phase-night-glow: rgb(170 192 235 / 0.4);
+  --phase-dawn-top: #ffd5c0;
+  --phase-dawn-horizon: #fff1dc;
+  --phase-dawn-sun: rgb(255 196 150 / 0.95);
+  --phase-dawn-glow: rgb(255 172 140 / 0.5);
+  --phase-morning-top: #d3e8ff;
+  --phase-morning-horizon: #fff5e3;
+  --phase-morning-sun: rgb(255 238 186 / 0.95);
+  --phase-morning-glow: rgb(255 214 150 / 0.45);
+  --phase-noon-top: #c6e0ff;
+  --phase-noon-horizon: #f5f9ff;
+  --phase-noon-sun: rgb(255 253 240 / 1);
+  --phase-noon-glow: rgb(140 188 255 / 0.42);
+  --phase-afternoon-top: #ffe2b3;
+  --phase-afternoon-horizon: #fff6e6;
+  --phase-afternoon-sun: rgb(255 222 150 / 0.95);
+  --phase-afternoon-glow: rgb(255 196 120 / 0.45);
+  --phase-sunset-top: #ffbf9e;
+  --phase-sunset-horizon: #ffe3cf;
+  --phase-sunset-sun: rgb(255 160 110 / 0.95);
+  --phase-sunset-glow: rgb(255 140 150 / 0.42);
+  --phase-dusk-top: #cdd6ee;
+  --phase-dusk-horizon: #f3e3e6;
+  --phase-dusk-sun: rgb(255 190 170 / 0.55);
+  --phase-dusk-glow: rgb(140 165 225 / 0.4);
+
+  --wallpaper: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-horizon) 70%);
 }
 
-/* Two soft lights drift across the sky, slowly enough to read as weather, not motion. */
-:root[data-theme-id='meulic'] .wallpaper::before {
-  content: '';
-  position: absolute;
-  inset: -30%;
-  background:
-    radial-gradient(30% 26% at 30% 32%, var(--glow-1) 0%, transparent 70%),
-    radial-gradient(28% 24% at 70% 66%, var(--glow-2) 0%, transparent 70%);
-  animation: sky-drift 56s steps(560) infinite alternate;
-  will-change: transform;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  :root[data-theme-id='meulic'] .wallpaper::before {
-    animation: none;
-  }
-}
-
-:root[data-theme-id='meulic'][data-daypart='dawn'] {
-  --wallpaper:
-    radial-gradient(120% 80% at 0% 0%, #ffd8c4 0%, transparent 55%),
-    radial-gradient(100% 70% at 100% 8%, #ffe9b8 0%, transparent 50%),
-    linear-gradient(180deg, #f6efe9 0%, #e9eef8 100%);
-  --glow-1: rgb(255 170 140 / 0.5);
-  --glow-2: rgb(255 222 150 / 0.42);
-}
-
-:root[data-theme-id='meulic'][data-daypart='dusk'] {
-  --wallpaper:
-    radial-gradient(110% 70% at 100% 0%, #ffd2a6 0%, transparent 55%),
-    radial-gradient(100% 80% at 0% 30%, #ffcdc6 0%, transparent 55%),
-    linear-gradient(180deg, #f9e8df 0%, #e6e9f4 100%);
-  --glow-1: rgb(255 165 110 / 0.48);
-  --glow-2: rgb(255 150 160 / 0.36);
-}
-
-:root[data-theme-id='meulic'][data-daypart='night'] {
-  --wallpaper:
-    radial-gradient(120% 80% at 50% 0%, #dde6f7 0%, transparent 60%),
-    linear-gradient(180deg, #e7ebf3 0%, #f1f3f8 100%);
-  --glow-1: rgb(165 190 255 / 0.4);
-  --glow-2: rgb(190 225 240 / 0.36);
-}
-
-/* Dark: the same sky at night. */
+/* Dark: the same day, at night-time brightness. */
 :root[data-theme-id='meulic'].dark {
   color-scheme: dark;
   --bg: #07090d;
@@ -115,38 +98,76 @@
   --glass-highlight: rgb(255 255 255 / 0.16);
   --grain: 0.05;
 
-  --wallpaper:
-    radial-gradient(90% 70% at 80% 0%, rgb(70 130 255 / 0.3) 0%, transparent 60%),
-    radial-gradient(70% 60% at 0% 100%, rgb(40 180 170 / 0.18) 0%, transparent 60%),
-    #06080c;
-  --glow-1: rgb(70 130 255 / 0.3);
-  --glow-2: rgb(40 180 170 / 0.22);
+  --phase-night-top: #04060b;
+  --phase-night-horizon: #0a1322;
+  --phase-night-sun: rgb(210 225 255 / 0.3);
+  --phase-night-glow: rgb(45 85 170 / 0.3);
+  --phase-dawn-top: #0b0a10;
+  --phase-dawn-horizon: #2a160f;
+  --phase-dawn-sun: rgb(255 150 90 / 0.48);
+  --phase-dawn-glow: rgb(255 130 80 / 0.26);
+  --phase-morning-top: #06101f;
+  --phase-morning-horizon: #13233a;
+  --phase-morning-sun: rgb(255 220 160 / 0.36);
+  --phase-morning-glow: rgb(70 130 230 / 0.28);
+  --phase-noon-top: #05132a;
+  --phase-noon-horizon: #0f2442;
+  --phase-noon-sun: rgb(255 245 220 / 0.34);
+  --phase-noon-glow: rgb(70 140 255 / 0.3);
+  --phase-afternoon-top: #0c0c10;
+  --phase-afternoon-horizon: #241a0e;
+  --phase-afternoon-sun: rgb(255 200 120 / 0.4);
+  --phase-afternoon-glow: rgb(255 170 80 / 0.24);
+  --phase-sunset-top: #100809;
+  --phase-sunset-horizon: #2e1410;
+  --phase-sunset-sun: rgb(255 130 80 / 0.48);
+  --phase-sunset-glow: rgb(235 90 90 / 0.24);
+  --phase-dusk-top: #060912;
+  --phase-dusk-horizon: #121a30;
+  --phase-dusk-sun: rgb(255 160 140 / 0.22);
+  --phase-dusk-glow: rgb(60 90 170 / 0.28);
 }
 
-:root[data-theme-id='meulic'].dark[data-daypart='dawn'] {
-  --wallpaper:
-    radial-gradient(90% 60% at 0% 0%, rgb(255 140 90 / 0.28) 0%, transparent 60%),
-    radial-gradient(80% 60% at 100% 100%, rgb(60 110 200 / 0.25) 0%, transparent 60%),
-    #07090d;
-  --glow-1: rgb(255 140 90 / 0.26);
-  --glow-2: rgb(60 110 200 / 0.26);
+/* The sun by day and the moon by night, on their arc; the sun rises into place when the app opens. */
+:root[data-theme-id='meulic'] .sky-sun {
+  background: radial-gradient(circle at var(--sun-x) var(--sun-y), var(--sky-sun) 0%, color-mix(in oklab, var(--sky-sun) 38%, transparent) 13%, transparent 46%);
+  animation: sun-rise 2.6s var(--ease-out-soft) both;
 }
 
-:root[data-theme-id='meulic'].dark[data-daypart='dusk'] {
-  --wallpaper:
-    radial-gradient(90% 60% at 100% 0%, rgb(255 150 60 / 0.26) 0%, transparent 60%),
-    radial-gradient(80% 70% at 0% 40%, rgb(230 80 90 / 0.18) 0%, transparent 60%),
-    #080709;
-  --glow-1: rgb(255 150 60 / 0.24);
-  --glow-2: rgb(230 80 90 / 0.2);
+/* Two soft lights in the day's colours drift across the sky, slowly enough to read as weather. */
+:root[data-theme-id='meulic'] .wallpaper::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(30% 26% at 30% 32%, var(--sky-glow) 0%, transparent 70%),
+    radial-gradient(28% 24% at 70% 66%, color-mix(in oklab, var(--sky-sun) 55%, transparent) 0%, transparent 70%);
+  animation: sky-drift 56s steps(560) infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme-id='meulic'] .wallpaper::before {
+    animation: none;
+  }
 }
 
-:root[data-theme-id='meulic'].dark[data-daypart='night'] {
-  --wallpaper:
-    radial-gradient(100% 70% at 50% 0%, rgb(50 90 180 / 0.26) 0%, transparent 65%),
-    #05060a;
-  --glow-1: rgb(50 90 180 / 0.28);
-  --glow-2: rgb(30 130 150 / 0.18);
+/* On dark nights, a few stars that breathe. */
+:root[data-theme-id='meulic'].dark[data-sun='down'] .sky-stars {
+  background-image:
+    radial-gradient(1.5px 1.5px at 9% 14%, rgb(255 255 255 / 0.9), transparent),
+    radial-gradient(1px 1px at 21% 31%, rgb(255 255 255 / 0.75), transparent),
+    radial-gradient(1.2px 1.2px at 34% 9%, rgb(255 255 255 / 0.8), transparent),
+    radial-gradient(1px 1px at 47% 24%, rgb(255 255 255 / 0.6), transparent),
+    radial-gradient(1.6px 1.6px at 58% 6%, rgb(255 255 255 / 0.95), transparent),
+    radial-gradient(1px 1px at 66% 19%, rgb(255 255 255 / 0.7), transparent),
+    radial-gradient(1.3px 1.3px at 77% 33%, rgb(255 255 255 / 0.8), transparent),
+    radial-gradient(1px 1px at 86% 11%, rgb(255 255 255 / 0.65), transparent),
+    radial-gradient(1.4px 1.4px at 93% 27%, rgb(255 255 255 / 0.85), transparent),
+    radial-gradient(1px 1px at 14% 42%, rgb(255 255 255 / 0.55), transparent),
+    radial-gradient(1.1px 1.1px at 41% 38%, rgb(255 255 255 / 0.6), transparent),
+    radial-gradient(1px 1px at 72% 45%, rgb(255 255 255 / 0.5), transparent);
+  animation: twinkle 9s ease-in-out infinite alternate;
 }
 
 /* Your colour stays yours, but keeps its contrast. On light glass and under white text it may darken;

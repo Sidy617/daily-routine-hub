@@ -6,6 +6,7 @@ import { addDays, dayLabel, isSunday, todayISO, weekStart } from '@/lib/dates';
 import { useLoad } from '@/lib/hooks';
 import { blockNow } from '@/lib/now';
 import type { FullDay, Profile, Task } from '@/lib/types';
+import { rem } from '@/lib/utils';
 import { Avatar } from '@/components/Avatar';
 import { BlockCard, NowCard } from '@/components/Day';
 import { AddSheet, AutoField, ReviewSheet, TaskSheet } from '@/components/DaySheets';
@@ -140,7 +141,7 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
           {isToday && carryItems.length > 0 && !carryGone && (
             <motion.section variants={stagger.item} className="glass flex items-center gap-3 rounded-card p-3 pl-4">
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-fill text-tint">
-                <RotateCcw className="size-[18px]" />
+                <RotateCcw className="size-[1.125rem]" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-body font-semibold">
@@ -158,7 +159,7 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
           )}
 
           {isSunday(day) && (
-            <OpenRow icon={<Target className="size-[18px]" />} title="Next week's goals" sub="Three things that would make it a good week" onClick={() => setGoals(true)} />
+            <OpenRow icon={<Target className="size-[1.125rem]" />} title="Next week's goals" sub="Three things that would make it a good week" onClick={() => setGoals(true)} />
           )}
 
           {!full.blocks.length && (
@@ -186,7 +187,7 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
 
           {full.blocks.length > 0 && (
             <OpenRow
-              icon={<Moon className="size-[18px]" />}
+              icon={<Moon className="size-[1.125rem]" />}
               title="Evening review"
               sub={full.day.missed || full.day.fix || full.day.tomorrow ? (full.day.tomorrow || full.day.missed || full.day.fix).split('\n')[0] : 'How did today go?'}
               onClick={() => setReview(true)}
@@ -226,7 +227,7 @@ function OpenRow({ icon, title, sub, onClick }: { icon: React.ReactNode; title: 
         <span className="title-case block text-body font-semibold">{title}</span>
         <span className="block truncate text-sub text-ink-2">{sub}</span>
       </span>
-      <ChevronRight className="size-[18px] text-ink-3" />
+      <ChevronRight className="size-[1.125rem] text-ink-3" />
     </motion.button>
   );
 }
@@ -257,7 +258,7 @@ function Skeleton() {
   return (
     <div className="flex flex-col gap-3" aria-label="Loading" role="status">
       {[96, 150, 130].map((h, i) => (
-        <div key={i} className="glass animate-pulse rounded-card" style={{ height: h, animationDelay: `${i * 120}ms` }} />
+        <div key={i} className="glass animate-pulse rounded-card" style={{ height: rem(h), animationDelay: `${i * 120}ms` }} />
       ))}
     </div>
   );

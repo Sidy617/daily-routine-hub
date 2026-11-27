@@ -5,7 +5,7 @@ import { faceUrl } from '@/lib/avatars';
 import { ORG_NAME } from '@/lib/config';
 import { useMedia } from '@/lib/useMedia';
 import type { LoginFace } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, rem } from '@/lib/utils';
 import { AvatarCircles } from '@/components/Avatar';
 import { Brand } from '@/components/Brand';
 import { Button } from '@/components/ui/button';
@@ -65,14 +65,14 @@ export function SignIn() {
     faces.length === 0 ? '' : faces.length === 1 ? `${faces[0].name} is here` : faces.length === 2 ? `${faces[0].name} and ${faces[1].name} are here` : `${faces[0].name}, ${faces[1].name} and ${faces.length - 2} more`;
 
   return (
-    <main className="mx-auto grid min-h-dvh w-full max-w-[1120px] items-center gap-12 px-5 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-10 lg:grid-cols-[1.2fr_1fr] lg:px-10">
+    <main className="mx-auto grid min-h-dvh w-full max-w-[70rem] items-center gap-12 px-5 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-10 lg:grid-cols-[1.2fr_1fr] lg:px-10">
       {wide && faces.length > 0 && <Showcase faces={faces} />}
 
       <motion.section
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className={cn('mx-auto w-full max-w-[400px]', !(wide && faces.length) && 'lg:col-span-2')}
+        className={cn('mx-auto w-full max-w-[25rem]', !(wide && faces.length) && 'lg:col-span-2')}
       >
         <Brand size="lg" />
 
@@ -170,7 +170,7 @@ function Showcase({ faces }: { faces: LoginFace[] }) {
             onMouseLeave={() => setHover(null)}
             className={cn('flex gap-3 transition-opacity duration-300', active === i ? 'opacity-100' : 'opacity-45')}
           >
-            <span className="mt-[7px] h-3 rounded-[5px] transition-all duration-300" style={{ width: active === i ? 22 : 14, background: active === i ? f.colour : 'var(--ink-3)' }} />
+            <span className="mt-[7px] h-3 rounded-[5px] transition-all duration-300" style={{ width: rem(active === i ? 22 : 14), background: active === i ? f.colour : 'var(--ink-3)' }} />
             <span className="min-w-0">
               <span className="title-case block truncate text-title font-semibold">{f.name}</span>
               <span className="label-case block truncate text-sub text-ink-2">{f.focus || ORG_NAME}</span>
@@ -190,7 +190,7 @@ function Tile({ face, on, dim, big, onEnter, onLeave }: { face: LoginFace; on: b
       onMouseLeave={onLeave}
       animate={{ scale: on ? 1.04 : 1, opacity: dim ? 0.72 : 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-      className={cn('overflow-hidden rounded-[26px] shadow-[0_18px_40px_-22px_rgb(0_0_0/0.45)]', big ? 'h-[168px] w-[150px]' : 'h-[150px] w-[136px]')}
+      className={cn('overflow-hidden rounded-[26px] shadow-[0_18px_40px_-22px_rgb(0_0_0/0.45)]', big ? 'h-[10.5rem] w-[9.375rem]' : 'h-[9.375rem] w-[8.5rem]')}
       style={{ background: `color-mix(in srgb, ${face.colour} 26%, var(--glass-strong))` }}
     >
       <img

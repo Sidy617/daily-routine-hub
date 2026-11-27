@@ -10,7 +10,7 @@ export function Screen({ children, className }: { children: ReactNode; className
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'mx-auto flex w-full max-w-[680px] flex-col gap-5 px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-40 lg:px-8 lg:pt-10 lg:pb-16',
+        'mx-auto flex w-full max-w-[42.5rem] flex-col gap-5 px-4 pt-[calc(env(safe-area-inset-top,0px)+14px)] pb-40 lg:px-8 lg:pt-10 lg:pb-16',
         className,
       )}
     >

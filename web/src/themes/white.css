@@ -1,0 +1,62 @@
+/* White, by Meulic.
+   Pure white and quiet: cards on white with fine edges, and only the sun's light moving with the day,
+   rising warm at the left in the morning and setting at the right in the evening. Always light.
+   Uses the same sun as Meulic (Wallpaper.tsx); only the sun's colours (--phase-*-sun) are given. */
+
+:root[data-theme-id='white'] {
+  color-scheme: light;
+  --tint: var(--person, #0a84ff);
+  --tint-fill: var(--person, #0a84ff);
+  --tint-ink: #ffffff;
+  --bg: #ffffff;
+  --ink: #0b0b0f;
+  --ink-2: rgb(60 60 67 / 0.76);
+  --ink-3: rgb(60 60 67 / 0.56);
+  --line: rgb(60 60 67 / 0.12);
+  --fill: rgb(118 118 128 / 0.1);
+  --danger: #c62a20;
+  --success: #34c759;
+
+  --glass: rgb(255 255 255 / 0.8);
+  --glass-strong: rgb(255 255 255 / 0.95);
+  --glass-border: rgb(60 60 67 / 0.1);
+  --glass-blur: 22px;
+  --glass-sat: 150%;
+  --glass-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 12px 30px -16px rgb(15 23 42 / 0.18);
+  --glass-rim: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 0 0 1px rgb(60 60 67 / 0.08);
+  --glass-tint: rgb(255 255 255 / 0.3);
+  --glass-tint-frosted: rgb(255 255 255 / 0.62);
+  --glass-highlight: rgb(255 255 255 / 0.9);
+  --glass-foreground: var(--ink);
+
+  --r-card: 22px;
+  --r-ctl: 12px;
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-numeric: var(--font);
+  --label-case: none;
+  --title-case: none;
+  --grain: 0;
+
+  --wallpaper: #ffffff;
+  /* Only the sun's light changes with the day; the page stays white. */
+  --phase-night-sun: rgb(150 175 235 / 0.2);
+  --phase-dawn-sun: rgb(255 170 130 / 0.3);
+  --phase-morning-sun: rgb(255 212 140 / 0.28);
+  --phase-noon-sun: rgb(255 226 150 / 0.24);
+  --phase-afternoon-sun: rgb(255 196 110 / 0.3);
+  --phase-sunset-sun: rgb(255 140 110 / 0.32);
+  --phase-dusk-sun: rgb(140 160 230 / 0.24);
+}
+
+:root[data-theme-id='white'] .sky-sun {
+  background: radial-gradient(circle at var(--sun-x) var(--sun-y), var(--sky-sun) 0%, transparent 48%);
+  animation: sun-rise 2.6s var(--ease-out-soft) both;
+}
+
+@supports (color: oklch(from red min(l, 0.5) c h)) {
+  :root[data-theme-id='white'] {
+    --tint: oklch(from var(--person, #0a84ff) min(l, 0.53) c h);
+    --tint-fill: oklch(from var(--person, #0a84ff) min(l, 0.53) c h);
+  }
+}

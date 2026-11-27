@@ -10,7 +10,7 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
 Input.displayName = 'Input';
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...props }, ref) => (
-  <textarea ref={ref} className={cn(base, 'min-h-[88px] resize-none py-2.5 leading-snug', className)} {...props} />
+  <textarea ref={ref} className={cn(base, 'min-h-[5.5rem] resize-none py-2.5 leading-snug', className)} {...props} />
 ));
 Textarea.displayName = 'Textarea';
 

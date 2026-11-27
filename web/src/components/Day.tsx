@@ -84,7 +84,7 @@ export function BlockCard({
             aria-label={`Add a task to ${block.name}`}
             className="-mr-2 grid size-8 place-items-center rounded-full text-ink-2 transition-colors hover:bg-fill hover:text-tint"
           >
-            <Plus className="size-[18px]" />
+            <Plus className="size-[1.125rem]" />
           </button>
         )}
       </header>

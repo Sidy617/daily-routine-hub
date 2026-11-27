@@ -15,3 +15,6 @@ const twMerge = extendTailwindMerge({
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/** A size in px at 100%, as rem, so the app's size setting (Me, Appearance) scales it too. */
+export const rem = (px: number) => `${px / 16}rem`;

@@ -31,7 +31,7 @@ export function MenuItem({
   return (
     <DropdownMenu.Item
       className={cn(
-        'flex h-10 cursor-default select-none items-center gap-3 rounded-[11px] px-3 text-body outline-none transition-colors data-[highlighted]:bg-fill [&_svg]:size-[18px] [&_svg]:text-ink-2',
+        'flex h-10 cursor-default select-none items-center gap-3 rounded-[11px] px-3 text-body outline-none transition-colors data-[highlighted]:bg-fill [&_svg]:size-[1.125rem] [&_svg]:text-ink-2',
         danger && 'text-danger [&_svg]:text-danger',
         className,
       )}
