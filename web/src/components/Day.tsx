@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { hm } from '@/lib/dates';
+import { useMinute } from '@/lib/hooks';
 import { blockNow, duration } from '@/lib/now';
 import type { DayBlock, FullDay, Task } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -9,20 +9,11 @@ import { Check } from './Check';
 import { Ring } from './Ring';
 import { stagger } from './Screen';
 
-/** Re-renders every minute so "now" and "time left" stay true. */
-export function useMinute() {
-  const [, set] = useState(0);
-  useEffect(() => {
-    const t = window.setInterval(() => set((n) => n + 1), 30_000);
-    return () => window.clearInterval(t);
-  }, []);
-}
-
 export const doneCount = (tasks: Task[]) => tasks.filter((t) => t.status === 'done').length;
 
 /** What is on now, how long is left, and the day's ring. Shown on today only. */
 export function NowCard({ full }: { full: FullDay }) {
-  useMinute();
+  useMinute(); // "now" and "time left" turn over with the clock
   const { current, next, left, until } = blockNow(full.blocks);
   const done = doneCount(full.tasks);
   const total = full.tasks.length;

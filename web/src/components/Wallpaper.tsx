@@ -1,4 +1,5 @@
 import { useLayoutEffect } from 'react';
+import { useOnReturn } from '@/lib/hooks';
 import { minutesNow, skyAt } from '@/lib/sky';
 
 const COLOURS = ['top', 'horizon', 'sun', 'glow'] as const;
@@ -33,6 +34,8 @@ export function Wallpaper() {
     next();
     return () => window.clearTimeout(timer);
   }, []);
+  // A phone that slept for hours shows this hour's sky at once, not the one it fell asleep under.
+  useOnReturn(() => paintSky());
   return (
     <div className="wallpaper" aria-hidden="true">
       <div className="sky-sun" />
