@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_KEY, SUPABASE_URL } from './config';
 import type { Block, BlockTotal, Day, DayBlock, DayTotal, FullDay, LoginFace, Profile, Status, Task, Team } from './types';
 import type { ImportedDay } from './importOld';
+import { planIsEmpty, planRoutineChange } from './routine';
 
 export const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
@@ -96,6 +97,40 @@ export const STARTER_BLOCKS: Omit<Block, 'id' | 'user_id'>[] = [
 
 export async function addStarterBlocks(userId: string) {
   must(await db.from('blocks').insert(STARTER_BLOCKS.map((b) => ({ ...b, user_id: userId }))));
+}
+
+/**
+ * Saves my routine, then brings the change into today and any later day I already opened,
+ * so new blocks and tasks show at once. Days before today keep what they recorded.
+ * Returns how many open days changed.
+ */
+export async function saveRoutine(userId: string, today: string, before: Block[], next: Omit<Block, 'user_id'>[], removedIds: string[]): Promise<number> {
+  await saveBlocks(userId, next, removedIds);
+  const after = await getBlocks(userId);
+  // Brand-new blocks get their ids on save; until then they are matched by name.
+  const days = must(await db.from('days').select('id').eq('user_id', userId).gte('date', today)) as { id: string }[];
+  let changed = 0;
+  for (const { id } of days) {
+    const full = await loadDayById(id);
+    const plan = planRoutineChange(before, after, removedIds, full.blocks, full.tasks);
+    if (planIsEmpty(plan)) continue;
+    changed++;
+    for (const b of plan.changeBlocks) {
+      must(await db.from('day_blocks').update({ name: b.name, starts: b.starts, ends: b.ends, position: b.position }).eq('id', b.id));
+    }
+    if (plan.removeTasks.length) must(await db.from('tasks').delete().in('id', plan.removeTasks));
+    if (plan.removeBlocks.length) must(await db.from('day_blocks').delete().in('id', plan.removeBlocks));
+    for (const b of plan.addBlocks) {
+      const made = must(
+        await db.from('day_blocks').insert({ day_id: id, name: b.name, starts: b.starts, ends: b.ends, position: b.position }).select('id').single(),
+      ) as { id: string };
+      plan.addTasks.push(...b.tasks.map((text, i) => ({ blockId: made.id, text, position: i + 1 })));
+    }
+    if (plan.addTasks.length) {
+      must(await db.from('tasks').insert(plan.addTasks.map((t) => ({ day_id: id, day_block_id: t.blockId, text: t.text, position: t.position }))));
+    }
+  }
+  return changed;
 }
 
 // Days ---------------------------------------------------------------------
