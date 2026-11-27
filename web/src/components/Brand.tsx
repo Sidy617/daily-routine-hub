@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { ORG_NAME, APP_NAME } from '@/lib/config';
-import { cn } from '@/lib/utils';
+import { cn, rem } from '@/lib/utils';
 
 /** Where the sun sits on its arc right now: 06:00 at the left, 18:00 at the right. */
 function sunAngle(date = new Date()) {
@@ -20,7 +20,7 @@ export function BrandMark({ size = 36, className }: { size?: number; className?:
   const cx = 32 + 17 * Math.cos(a);
   const cy = 40 - 17 * Math.sin(a);
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" className={cn('shrink-0', className)} aria-hidden="true">
+    <svg viewBox="0 0 64 64" className={cn('shrink-0', className)} style={{ width: rem(size), height: rem(size) }} aria-hidden="true">
       <defs>
         <linearGradient id={tile} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#1e3a64" />

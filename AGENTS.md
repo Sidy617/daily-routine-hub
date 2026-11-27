@@ -17,7 +17,9 @@ A theme is one CSS file of tokens in `web/src/themes/`. Each theme belongs to th
 
 ## Look: Apple-like, calm, glass
 
-The direction (Meulic): a sky that follows the time of day with slow drifting lights, frosted glass over it, one tint (the person's own colour), the type sizes most apps use, smooth motion.
+The direction (Meulic): a sky that follows the sun through the day (see `web/src/themes/README.md`), frosted glass over it, one tint (the person's own colour), the type sizes most apps use, smooth motion. White is the same app on pure white.
+
+Each person sets the size of everything per device (Me > Appearance > Size, 85% to 120%). It works because every size is in rem: write new sizes in rem or Tailwind's scale, and pixel numbers passed to components through `rem()` from `lib/utils`, never as px.
 
 Checked by `npm run check:design` (fails the build):
 

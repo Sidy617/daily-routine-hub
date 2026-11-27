@@ -87,7 +87,7 @@ function TeamToday({ me, people }: { me: Profile; people: Profile[] }) {
                 <span className="text-cap font-semibold tracking-tight text-ink-2">{day && day.total ? `${pct(score(day))}%` : ''}</span>
               </Ring>
             ) : (
-              <span className="grid size-[42px] place-items-center rounded-full bg-fill text-ink-2">
+              <span className="grid size-[2.625rem] place-items-center rounded-full bg-fill text-ink-2">
                 <Lock className="size-4" />
               </span>
             )}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Archive, Camera, Check as CheckIcon, ChevronLeft, Eye, History, ImageUp, LogOut, Palette, Plus, Sparkles, Trash2, Users } from 'lucide-react';
+import { ALargeSmall, Archive, Camera, Check as CheckIcon, ChevronLeft, Eye, History, ImageUp, LogOut, Palette, Plus, Sparkles, Trash2, Users } from 'lucide-react';
 import { clearMyPhoto, db, getBlocks, importDays, saveBlocks, setMyPhoto, updateProfile } from '@/lib/api';
 import { CHARACTERS, CHARACTER_NAMES, TONES, TONE_SWATCHES, avatarKey, avatarUrl, splitKey, squarePhoto } from '@/lib/avatars';
 import { PERSON_COLOURS, TILE } from '@/lib/colours';
@@ -10,7 +10,7 @@ import { readOldDays, readOldWeekGoals } from '@/lib/importOld';
 import { minutesOf } from '@/lib/now';
 import type { Block, Profile, Team } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { THEMES, applyTheme } from '@/themes';
+import { APP_SIZES, THEMES, applyAppSize, applyTheme, savedAppSize } from '@/themes';
 import { Avatar } from '@/components/Avatar';
 import { Brand } from '@/components/Brand';
 import { Group, Row } from '@/components/List';
@@ -18,6 +18,7 @@ import { Screen, stagger } from '@/components/Screen';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Select, Textarea } from '@/components/ui/field';
 import { Sheet } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
 
@@ -25,6 +26,7 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
   const [name, setName] = useState(me.name);
   const [focus, setFocus] = useState(me.focus);
   const [sheet, setSheet] = useState<'picture' | 'theme' | 'day' | null>(openDay ? 'day' : null);
+  const [size, setSize] = useState(savedAppSize);
   const { data: blocks, reload: reloadBlocks } = useLoad(() => getBlocks(me.id), [me.id]);
   const email = useLoad(async () => (await db.auth.getUser()).data.user?.email ?? '', []);
   const theme = THEMES.find((t) => t.id === me.theme) ?? THEMES[0];
@@ -110,6 +112,36 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
                       style={{ background: c }}
                     />
                   ))}
+                </span>
+              }
+            />
+            <Row
+              icon={<ALargeSmall />}
+              tile={TILE.blue}
+              label="Size"
+              sub="On this device"
+              value={`${Math.round(size * 100)}%`}
+              below={
+                <span className="flex items-center gap-3">
+                  <span aria-hidden="true" className="text-cap font-semibold text-ink-2">
+                    A
+                  </span>
+                  <Slider
+                    label="Size"
+                    valueText={`${Math.round(size * 100)}%`}
+                    min={0}
+                    max={APP_SIZES.length - 1}
+                    step={1}
+                    value={[Math.max(0, APP_SIZES.indexOf(size))]}
+                    onValueChange={([i]) => {
+                      const next = APP_SIZES[i] ?? 1;
+                      setSize(next);
+                      applyAppSize(next);
+                    }}
+                  />
+                  <span aria-hidden="true" className="text-title font-semibold text-ink-2">
+                    A
+                  </span>
                 </span>
               }
             />
@@ -463,7 +495,7 @@ function DaySheet({ open, onOpenChange, me, blocks, onSaved }: { open: boolean; 
             <div className="divide-y divide-line overflow-hidden rounded-[16px] bg-fill">
               {list.map((x, i) => (
                 <button key={x.id} type="button" onClick={() => setEditing(i)} className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-fill">
-                  <span className="tabular w-[92px] shrink-0 text-sub text-ink-2">
+                  <span className="tabular w-[5.75rem] shrink-0 text-sub text-ink-2">
                     {x.starts} to {x.ends}
                   </span>
                   <span className="title-case min-w-0 flex-1 truncate text-body font-medium">{x.name || 'New block'}</span>

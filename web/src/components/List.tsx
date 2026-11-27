@@ -49,7 +49,7 @@ export function Row({
     <>
       {icon && (
         <span
-          className={cn('grid size-[30px] shrink-0 place-items-center rounded-[8px] [&_svg]:size-[17px]', tile ? 'text-white' : 'bg-tint-fill text-tint-ink')}
+          className={cn('grid size-[1.875rem] shrink-0 place-items-center rounded-[8px] [&_svg]:size-[1.0625rem]', tile ? 'text-white' : 'bg-tint-fill text-tint-ink')}
           style={tile ? { background: tile } : undefined}
         >
           {icon}
@@ -62,11 +62,11 @@ export function Row({
       </span>
       {value !== undefined && <span className="min-w-0 max-w-[45%] truncate text-body text-ink-2">{value}</span>}
       {control}
-      {opens && <ChevronRight className="size-[18px] shrink-0 text-ink-3" />}
+      {opens && <ChevronRight className="size-[1.125rem] shrink-0 text-ink-3" />}
     </>
   );
   const cls = cn(
-    'flex min-h-[50px] w-full gap-3 px-4 py-2 text-left transition-colors',
+    'flex min-h-[3.125rem] w-full gap-3 px-4 py-2 text-left transition-colors',
     below ? 'items-start py-3' : 'items-center',
     opens && 'active:bg-fill hover:bg-fill/60',
     className,

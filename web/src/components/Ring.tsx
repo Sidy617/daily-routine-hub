@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { personStyle } from '@/lib/colours';
+import { rem } from '@/lib/utils';
 
 /** A progress ring that fills with a spring, like Apple's Activity rings. */
 export function Ring({
@@ -22,8 +23,8 @@ export function Ring({
   const c = 2 * Math.PI * r;
   const v = Math.max(0, Math.min(1, value || 0));
   return (
-    <span className="person-colour relative inline-grid shrink-0 place-items-center" style={personStyle(colour, { width: size, height: size })} role="img" aria-label={label ?? `${Math.round(v * 100)}%`}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90" aria-hidden="true">
+    <span className="person-colour relative inline-grid shrink-0 place-items-center" style={personStyle(colour, { width: rem(size), height: rem(size) })} role="img" aria-label={label ?? `${Math.round(v * 100)}%`}>
+      <svg viewBox={`0 0 ${size} ${size}`} className="size-full -rotate-90" aria-hidden="true">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--fill)" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}

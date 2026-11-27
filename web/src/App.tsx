@@ -178,8 +178,8 @@ function Shell() {
   const onToday = route.name === 'today';
 
   return (
-    <div className="min-h-dvh lg:pl-[276px]">
-      <aside className="glass-strong fixed inset-y-3 left-3 z-30 hidden w-[252px] flex-col rounded-[26px] p-4 lg:flex">
+    <div className="min-h-dvh lg:pl-[17.25rem]">
+      <aside className="glass-strong fixed inset-y-3 left-3 z-30 hidden w-[15.75rem] flex-col rounded-[26px] p-4 lg:flex">
         <a href="#/" className="px-2 pt-1">
           <Brand size="md" />
         </a>
@@ -189,7 +189,7 @@ function Shell() {
               key={t.id}
               href={`#${t.href}`}
               aria-current={tab === t.id ? 'page' : undefined}
-              className={cn('relative flex h-10 items-center gap-3 rounded-[12px] px-3 text-body font-medium transition-colors [&_svg]:size-[19px]', tab === t.id ? 'text-ink' : 'text-ink-2 hover:text-ink')}
+              className={cn('relative flex h-10 items-center gap-3 rounded-[12px] px-3 text-body font-medium transition-colors [&_svg]:size-[1.1875rem]', tab === t.id ? 'text-ink' : 'text-ink-2 hover:text-ink')}
             >
               {tab === t.id && <motion.span layoutId="side-active" className="absolute inset-0 -z-10 rounded-[12px] bg-fill" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <span className={tab === t.id ? 'text-tint' : ''}>{t.icon}</span>

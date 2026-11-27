@@ -18,7 +18,7 @@ export function Segment<T extends string>({
 }) {
   const id = useId();
   return (
-    <div role="radiogroup" aria-label={label} className={cn('relative flex rounded-[11px] bg-fill p-[3px]', className)}>
+    <div role="radiogroup" aria-label={label} className={cn('relative flex rounded-[11px] bg-fill p-[0.1875rem]', className)}>
       {options.map((o) => {
         const on = o.value === value;
         return (

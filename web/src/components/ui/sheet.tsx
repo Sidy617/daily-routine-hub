@@ -69,7 +69,7 @@ export function Sheet({
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-50 bg-black/30" />
         <Drawer.Content className={cn('glass-strong fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] flex-col rounded-t-[28px] outline-none', className)}>
-          <div aria-hidden className="mx-auto mt-2 h-[5px] w-9 shrink-0 rounded-full bg-ink-3/60" />
+          <div aria-hidden className="mx-auto mt-2 h-[0.3125rem] w-9 shrink-0 rounded-full bg-ink-3/60" />
           {head(Drawer.Title, Drawer.Description)}
           <div className="safe-bottom overflow-y-auto px-4 pt-2">{children}</div>
         </Drawer.Content>

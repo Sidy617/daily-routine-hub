@@ -1,6 +1,7 @@
 // Fails the build when screens, components or the Meulic theme break the design rules
 // in AGENTS.md. The Original theme is the first design, kept as chosen, so it is not checked;
-// other people's themes are checked as warnings. Code from 21st.dev keeps its own look.
+// Meulic and White are checked strictly; other people's themes are checked as warnings.
+// Code from 21st.dev keeps its own look.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,10 +23,10 @@ const themeFile = (r) => r.startsWith('themes/');
 const strict = files.filter((f) => {
   const r = rel(f);
   if (exempt(r)) return false;
-  if (themeFile(r)) return r === 'themes/meulic.css';
+  if (themeFile(r)) return r === 'themes/meulic.css' || r === 'themes/white.css';
   return true;
 });
-const others = files.filter((f) => themeFile(rel(f)) && !/(meulic|original)\.css$/.test(f));
+const others = files.filter((f) => themeFile(rel(f)) && !/(meulic|white|original)\.css$/.test(f));
 
 // Sizes written in px or rem, as px.
 const sizesIn = (line) => [...line.matchAll(/(?:font-size:\s*|text-\[)(\d*\.?\d+)(px|rem)\b/g)].map((m) => (m[2] === 'rem' ? m[1] * 16 : +m[1]));

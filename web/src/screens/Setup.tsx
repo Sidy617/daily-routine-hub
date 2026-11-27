@@ -17,7 +17,7 @@ export function Setup({ profile, team, hasBlocks, onDone }: { profile: Profile; 
 
 function Shell({ step, title, sub, children }: { step: number; title: string; sub: string; children: ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col justify-center px-5 pt-[calc(env(safe-area-inset-top,0px)+24px)] pb-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[26.25rem] flex-col justify-center px-5 pt-[calc(env(safe-area-inset-top,0px)+24px)] pb-10">
       <Brand size="md" />
       <motion.div key={step} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }} className="glass mt-6 rounded-[28px] p-5">
         <div className="mb-4 flex gap-1.5" aria-label={`Step ${step} of 3`}>
