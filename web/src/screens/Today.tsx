@@ -151,7 +151,7 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
               <Button variant="tint" size="sm" onClick={bring}>
                 Bring over
               </Button>
-              <button type="button" aria-label="Not now" onClick={() => setCarryGone(true)} className="grid size-8 place-items-center rounded-full text-ink-3 hover:bg-fill">
+              <button type="button" aria-label="Not now" onClick={() => setCarryGone(true)} className="grid size-8 place-items-center rounded-full text-ink-2 hover:bg-fill">
                 <X className="size-4" />
               </button>
             </motion.section>

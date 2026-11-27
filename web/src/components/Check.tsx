@@ -9,10 +9,10 @@ export function Check({ status, onToggle, label, className }: { status: Status; 
   const mark = (
     <svg viewBox="0 0 24 24" className="size-[23px]" aria-hidden="true">
       <circle cx="12" cy="12" r="10.25" fill="none" strokeWidth="1.6" className={status === 'todo' ? 'stroke-ink-3' : 'stroke-tint'} />
-      {status === 'half' && <path d="M12 1.75a10.25 10.25 0 0 1 0 20.5z" className="fill-tint" />}
+      {status === 'half' && <path d="M12 1.75a10.25 10.25 0 0 1 0 20.5z" className="fill-tint-fill" />}
       {status === 'done' && (
         <>
-          <motion.circle cx="12" cy="12" r="10.25" className="fill-tint" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 24 }} style={{ originX: '50%', originY: '50%' }} />
+          <motion.circle cx="12" cy="12" r="10.25" className="fill-tint-fill" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 24 }} style={{ originX: '50%', originY: '50%' }} />
           <motion.path
             d="M7.4 12.4l3.1 3.1 6.1-6.6"
             fill="none"

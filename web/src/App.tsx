@@ -197,7 +197,7 @@ function Shell() {
             </a>
           ))}
         </nav>
-        <p className="label-case mt-7 mb-1 px-3 text-cap font-semibold text-ink-3">{team.name}</p>
+        <p className="label-case mt-7 mb-1 px-3 text-cap font-semibold text-ink-2">{team.name}</p>
         <div className="-mx-1 space-y-0.5 overflow-y-auto px-1">
           {people.map((p) => (
             <a key={p.id} href={`#/p/${p.id}/day`} className="flex h-10 items-center gap-2.5 rounded-[12px] px-2 transition-colors hover:bg-fill/70">

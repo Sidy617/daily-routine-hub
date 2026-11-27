@@ -17,15 +17,20 @@ A theme is one CSS file of tokens in `web/src/themes/`. Each theme belongs to th
 
 ## Look: Apple-like, calm, glass
 
-The direction (Meulic): a sky that follows the time of day, frosted glass over it, one tint (the person's own colour), compact type, smooth motion.
+The direction (Meulic): a sky that follows the time of day with slow drifting lights, frosted glass over it, one tint (the person's own colour), the type sizes most apps use, smooth motion.
 
 Checked by `npm run check:design` (fails the build):
 
 - Screens use theme tokens and Tailwind classes only; no colours written into `.tsx` files (the logo and the share picture are drawings and are exempt).
 - Gradients only in theme files (the sky). No purple, violet or indigo.
-- Type sizes: `text-large`, `text-title`, `text-head`, `text-body`, `text-sub`, `text-cap`. Nothing under 11px (Apple's minimum).
+- Type sizes: `text-large`, `text-title`, `text-head`, `text-body`, `text-sub`, `text-cap`. On phones body is 16px, second lines 14px, captions 12px (between Apple's 17pt body and Material's 16sp); laptops one step smaller. Nothing under 11px (Apple's minimum).
 - No fixed capital letters; use `label-case` and `title-case` so each theme decides.
 - No emoji, no em dashes.
+- Text stays readable in light, dark and Original (found in dark mode, 27 Nov 2026):
+  - White text on your colour sits on `bg-tint-fill`; `text-tint` and `bg-tint` are the colour for text, rings and dots, which brightens in dark mode.
+  - Secondary text is `text-ink-2`. `text-ink-3` is only for placeholders, arrows and disabled controls.
+  - Tinted controls turn grey when disabled (`disabled:text-ink-3`); a faded tint reads as black on dark glass.
+  - Someone's own colour (rings, bars, calendar squares) goes through `personStyle()` and `var(--mark)` or `var(--heat)`, never as picked: some colours are too light on white, others too dark on black.
 
 Also, by review:
 

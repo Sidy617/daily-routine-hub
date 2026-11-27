@@ -4,6 +4,7 @@
 :root[data-theme-id='original'] {
   color-scheme: dark;
   --tint: #06b6d4;
+  --tint-fill: #06b6d4;
   --tint-ink: #020617;
   --bg: #030712;
   --ink: #f3f4f6;

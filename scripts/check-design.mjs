@@ -27,9 +27,19 @@ const strict = files.filter((f) => {
 });
 const others = files.filter((f) => themeFile(rel(f)) && !/(meulic|original)\.css$/.test(f));
 
+// Sizes written in px or rem, as px.
+const sizesIn = (line) => [...line.matchAll(/(?:font-size:\s*|text-\[)(\d*\.?\d+)(px|rem)\b/g)].map((m) => (m[2] === 'rem' ? m[1] * 16 : +m[1]));
+
 const rules = [
   { name: 'no purple, violet or indigo', re: /\b(purple|violet|indigo)-\d|#(7c3aed|8b5cf6|6366f1|4f46e5|a855f7|9333ea|667eea|764ba2|5856d6|5e5ce6)\b/i },
-  { name: 'no text under 11px', re: /font-size:\s*(\d|10)(\.\d+)?px|text-\[(\d|10)(\.\d+)?px\]/i },
+  { name: 'no text under 11px', test: (line) => sizesIn(line).some((px) => px < 11) },
+  // Found in dark mode, 27 Nov 2026: these three made text look black or vanish.
+  { name: 'white text on your colour needs bg-tint-fill (bg-tint is the text colour, light in dark mode)', test: (line) => /\bbg-tint(?![-\w/])/.test(line) && /\btext-tint-ink\b/.test(line) },
+  {
+    name: 'text in text-ink-3 is too faint; use text-ink-2 (ink-3 is for placeholders, arrows and disabled controls)',
+    re: /(?<![:\w-])text-ink-3\b[^'"`]*\btext-(large|title|head|body|sub|cap)\b|\btext-(large|title|head|body|sub|cap)\b[^'"`]*(?<![:\w-])text-ink-3\b/,
+  },
+  { name: 'tinted controls turn grey when disabled (a faded tint reads as black on dark glass)', test: (line) => /disabled:opacity-/.test(line) && /\b(text|bg)-tint\b/.test(line) },
   { name: 'no fixed capital labels (use label-case)', re: /text-transform:\s*uppercase|\buppercase\b/ },
   { name: 'no emoji', re: /\p{Extended_Pictographic}/u },
   { name: 'no colours written into screens (use theme tokens)', re: /#[0-9a-f]{3,8}\b(?![-\w])/i, onlyTsx: true },
@@ -50,7 +60,7 @@ function check(list) {
           if (rule.onlyTsx && isCss) continue;
           if (rule.notThemes && themeFile(r)) continue;
           if (rule.notThemes && r === 'styles/app.css' && /wallpaper|data:image/.test(line)) continue;
-          if (rule.re.test(line)) found.push(`web/src/${r}:${i + 1}  ${rule.name}\n    ${line.trim().slice(0, 140)}`);
+          if (rule.re ? rule.re.test(line) : rule.test(line)) found.push(`web/src/${r}:${i + 1}  ${rule.name}\n    ${line.trim().slice(0, 140)}`);
         }
       });
   }

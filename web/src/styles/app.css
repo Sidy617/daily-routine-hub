@@ -19,6 +19,7 @@
   --color-line: var(--line);
   --color-fill: var(--fill);
   --color-tint: var(--tint);
+  --color-tint-fill: var(--tint-fill);
   --color-tint-ink: var(--tint-ink);
   --color-danger: var(--danger);
   --color-success: var(--success);
@@ -35,7 +36,7 @@
   --color-card-foreground: var(--ink);
   --color-popover: var(--glass-strong);
   --color-popover-foreground: var(--ink);
-  --color-primary: var(--tint);
+  --color-primary: var(--tint-fill);
   --color-primary-foreground: var(--tint-ink);
   --color-secondary: var(--fill);
   --color-secondary-foreground: var(--ink);
@@ -49,23 +50,25 @@
   --color-ring: var(--tint);
 }
 
-/* Type: compact, Apple-like. Phone sizes here; laptops get smaller ones below. */
+/* Type: the sizes most apps use. Phones read at 16px, between Apple's 17pt body and Material's 16sp,
+   with 14px for second lines and 12px for captions; nothing under 11px, Apple's minimum.
+   Laptops sit one step smaller, below. */
 @theme {
-  --text-large: 1.875rem;
+  --text-large: 2rem;
   --text-large--line-height: 1.1;
   --text-large--letter-spacing: -0.026em;
-  --text-title: 1.25rem;
+  --text-title: 1.375rem;
   --text-title--line-height: 1.25;
   --text-title--letter-spacing: -0.018em;
-  --text-head: 1rem;
+  --text-head: 1.0625rem;
   --text-head--line-height: 1.3;
   --text-head--letter-spacing: -0.012em;
-  --text-body: 0.9375rem;
+  --text-body: 1rem;
   --text-body--line-height: 1.4;
   --text-body--letter-spacing: -0.006em;
-  --text-sub: 0.8125rem;
+  --text-sub: 0.875rem;
   --text-sub--line-height: 1.35;
-  --text-cap: 0.6875rem;
+  --text-cap: 0.75rem;
   --text-cap--line-height: 1.25;
   --text-cap--letter-spacing: 0.01em;
 
@@ -76,10 +79,10 @@
 @media (width >= 64rem) {
   :root {
     --text-large: 1.75rem;
-    --text-title: 1.125rem;
-    --text-head: 0.9375rem;
-    --text-body: 0.875rem;
-    --text-sub: 0.75rem;
+    --text-title: 1.25rem;
+    --text-head: 1rem;
+    --text-body: 0.9375rem;
+    --text-sub: 0.8125rem;
   }
 }
 
@@ -153,8 +156,22 @@
   position: fixed;
   inset: 0;
   z-index: -10;
+  overflow: hidden;
   background: var(--wallpaper);
-  transition: background 1.2s ease;
+}
+/* A theme may put slow lights over its sky on .wallpaper::before and move them with sky-drift
+   (Meulic does). Only the layer's position moves, in small steps, so the glass above it is redrawn
+   a few times a second rather than every frame. */
+@keyframes sky-drift {
+  0% {
+    transform: translate3d(-7%, -5%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 4%, 0) rotate(9deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(8%, -4%, 0) rotate(-7deg) scale(1.03);
+  }
 }
 .wallpaper::after {
   content: '';
@@ -170,11 +187,28 @@
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
 }
 
+/* A person's own colour, kept readable wherever it marks something. Set --c to the colour:
+   --mark is for rings, bars and squares on glass, --heat for fills that hold text. */
+.person-colour {
+  --mark: var(--c);
+  --heat: var(--c);
+}
+@supports (color: oklch(from red min(l, 0.5) c h)) {
+  .person-colour {
+    --mark: oklch(from var(--c) min(l, 0.66) c h);
+    --heat: oklch(from var(--c) min(l, 0.56) c h);
+  }
+  .dark .person-colour {
+    --mark: oklch(from var(--c) max(l, 0.72) c h);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
 }

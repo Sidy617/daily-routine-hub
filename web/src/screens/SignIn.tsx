@@ -108,7 +108,7 @@ export function SignIn() {
                 minLength={8}
                 autoComplete={mode === 'up' ? 'new-password' : 'current-password'}
               />
-              {mode === 'up' && <p className="mt-1 px-1 text-cap text-ink-3">At least 8 characters</p>}
+              {mode === 'up' && <p className="mt-1 px-1 text-cap text-ink-2">At least 8 characters</p>}
             </div>
             {message && (
               <p className={cn('px-1 text-sub', message.ok ? 'text-success' : 'text-danger')} role="status">

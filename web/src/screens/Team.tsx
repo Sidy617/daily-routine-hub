@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, Copy, Lock, Share2, UserPlus } from 'lucide-react';
 import { blockTotals, dayTotals, reviewsOn } from '@/lib/api';
 import { addDays, clock, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
+import { personStyle } from '@/lib/colours';
 import { go, useLoad } from '@/lib/hooks';
 import { mostMissed, pct, score, sumTotals } from '@/lib/stats';
 import type { BlockTotal, Profile, Team } from '@/lib/types';
@@ -76,17 +77,17 @@ function TeamToday({ me, people }: { me: Profile; people: Profile[] }) {
             <span className="min-w-0 flex-1">
               <span className="title-case flex items-baseline gap-1.5 text-head font-semibold text-ink">
                 <span className="truncate">{p.name || 'No name yet'}</span>
-                {p.id === me.id && <span className="shrink-0 text-sub font-normal text-ink-3">You</span>}
+                {p.id === me.id && <span className="shrink-0 text-sub font-normal text-ink-2">You</span>}
               </span>
               <span className="block truncate text-sub text-ink-2">{p.focus ? `${p.focus}. ${status}` : status}</span>
-              {visible && line && <span className="block truncate text-sub text-ink-3">{line}</span>}
+              {visible && line && <span className="block truncate text-sub text-ink-2">{line}</span>}
             </span>
             {visible ? (
               <Ring value={day && day.total ? score(day) : 0} size={42} stroke={4.5} colour={p.colour} label={day ? `${day.done} of ${day.total}` : 'No tasks'}>
-                <span className="text-[0.625rem] font-semibold text-ink-2">{day && day.total ? `${pct(score(day))}%` : ''}</span>
+                <span className="text-cap font-semibold tracking-tight text-ink-2">{day && day.total ? `${pct(score(day))}%` : ''}</span>
               </Ring>
             ) : (
-              <span className="grid size-[42px] place-items-center rounded-full bg-fill text-ink-3">
+              <span className="grid size-[42px] place-items-center rounded-full bg-fill text-ink-2">
                 <Lock className="size-4" />
               </span>
             )}
@@ -135,7 +136,7 @@ function TeamWeek({ me, people }: { me: Profile; people: Profile[] }) {
               aria-label="Later week"
               disabled={thisWeek}
               onClick={() => setAnchor(addDays(from, 7))}
-              className="grid size-8 place-items-center rounded-full text-tint hover:bg-fill disabled:opacity-30"
+              className="grid size-8 place-items-center rounded-full text-tint hover:bg-fill disabled:text-ink-3"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -144,7 +145,7 @@ function TeamWeek({ me, people }: { me: Profile; people: Profile[] }) {
         <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,minmax(0,34px))] items-center gap-x-1.5 gap-y-2">
           <span />
           {days.map((d) => (
-            <span key={d} className="text-center text-cap font-semibold text-ink-3">
+            <span key={d} className="text-center text-cap font-semibold text-ink-2">
               {shortDay(d).slice(0, 1)}
             </span>
           ))}
@@ -155,7 +156,7 @@ function TeamWeek({ me, people }: { me: Profile; people: Profile[] }) {
       </motion.section>
       {data && <WeekSummary totals={data.totals} blocks={data.blocks} who="the team's" />}
       {people.length > shown.length && (
-        <p className="px-4 text-sub text-ink-3">People who keep their days private are not counted.</p>
+        <p className="px-4 text-sub text-ink-2">People who keep their days private are not counted.</p>
       )}
     </motion.div>
   );
@@ -176,8 +177,8 @@ function WeekRow({ p, me, days, totals }: { p: Profile; me: Profile; days: strin
             key={d}
             href={`#/p/${p.id}/day/${d}`}
             aria-label={t ? `${p.name}, ${shortDay(d)}: ${t.done} of ${t.total}` : `${p.name}, ${shortDay(d)}: no record`}
-            className="aspect-square rounded-[9px] bg-fill transition-transform hover:scale-105"
-            style={s !== null ? { background: `color-mix(in srgb, ${p.colour} ${Math.round(22 + s * 78)}%, transparent)` } : undefined}
+            className="person-colour aspect-square rounded-[9px] bg-fill transition-transform hover:scale-105"
+            style={personStyle(p.colour, s !== null ? { background: `color-mix(in srgb, var(--mark) ${Math.round(22 + s * 78)}%, transparent)` } : {})}
           />
         );
       })}
@@ -187,7 +188,7 @@ function WeekRow({ p, me, days, totals }: { p: Profile; me: Profile; days: strin
 
 export function WeekSummary({ totals, blocks, who }: { totals: { total: number; done: number; half: number }[]; blocks: BlockTotal[]; who: string }) {
   const sum = sumTotals(totals);
-  if (!sum.total) return <p className="px-4 text-sub text-ink-3">No tasks recorded in this period.</p>;
+  if (!sum.total) return <p className="px-4 text-sub text-ink-2">No tasks recorded in this period.</p>;
   const missed = mostMissed(blocks);
   return (
     <motion.section variants={stagger.item} className="glass flex items-center gap-4 rounded-card p-4">

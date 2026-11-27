@@ -46,7 +46,7 @@ export function DateMenu({ meId, date, children }: { meId: string; date: string;
         </div>
         <div className="grid grid-cols-7 gap-y-0.5 text-center">
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="py-1 text-cap font-semibold text-ink-3">
+            <span key={i} className="py-1 text-cap font-semibold text-ink-2">
               {d}
             </span>
           ))}
@@ -61,7 +61,7 @@ export function DateMenu({ meId, date, children }: { meId: string; date: string;
                 onClick={() => pick(d === today ? '/' : `/day/${d}`)}
                 className={cn(
                   'tabular relative mx-auto grid size-9 place-items-center rounded-full text-body transition-colors',
-                  d === date ? 'bg-tint font-semibold text-tint-ink' : d === today ? 'font-semibold text-tint' : 'text-ink hover:bg-fill',
+                  d === date ? 'bg-tint-fill font-semibold text-tint-ink' : d === today ? 'font-semibold text-tint' : 'text-ink hover:bg-fill',
                 )}
               >
                 {Number(d.slice(8))}

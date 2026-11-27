@@ -37,7 +37,7 @@ export function NowCard({ full }: { full: FullDay }) {
       <Ring value={total ? (done + half / 2) / total : 0} size={66} stroke={6.5} label={`${done} of ${total} done`}>
         <span className="text-head font-semibold text-ink">
           {done}
-          <span className="text-sub font-medium text-ink-3">/{total}</span>
+          <span className="text-sub font-medium text-ink-2">/{total}</span>
         </span>
       </Ring>
       <div className="min-w-0 flex-1">
@@ -75,14 +75,14 @@ export function BlockCard({
     >
       <header className="flex items-center gap-2">
         <h2 className="title-case min-w-0 truncate text-head font-semibold text-ink">{block.name}</h2>
-        {isNow && <span className="label-case rounded-full bg-tint px-2 py-[3px] text-cap leading-none font-semibold text-tint-ink">Now</span>}
-        <span className="tabular ml-auto text-sub text-ink-3">{tasks.length ? `${done}/${tasks.length}` : ''}</span>
+        {isNow && <span className="label-case rounded-full bg-tint-fill px-2 py-[3px] text-cap leading-none font-semibold text-tint-ink">Now</span>}
+        <span className="tabular ml-auto text-sub text-ink-2">{tasks.length ? `${done}/${tasks.length}` : ''}</span>
         {editable && onAdd && (
           <button
             type="button"
             onClick={onAdd}
             aria-label={`Add a task to ${block.name}`}
-            className="-mr-2 grid size-8 place-items-center rounded-full text-ink-3 transition-colors hover:bg-fill hover:text-tint"
+            className="-mr-2 grid size-8 place-items-center rounded-full text-ink-2 transition-colors hover:bg-fill hover:text-tint"
           >
             <Plus className="size-[18px]" />
           </button>
@@ -116,7 +116,7 @@ export function BlockCard({
             </motion.li>
           ))}
         </AnimatePresence>
-        {!tasks.length && <li className="py-2.5 text-sub text-ink-3">{editable ? 'Nothing planned yet' : 'Nothing recorded'}</li>}
+        {!tasks.length && <li className="py-2.5 text-sub text-ink-2">{editable ? 'Nothing planned yet' : 'Nothing recorded'}</li>}
       </ul>
     </motion.section>
   );
@@ -125,7 +125,7 @@ export function BlockCard({
 function TaskText({ task }: { task: Task }) {
   return (
     <>
-      <span className={cn('block text-body transition-colors', task.status === 'done' ? 'text-ink-3 line-through decoration-ink-3/60' : 'text-ink')}>{task.text}</span>
+      <span className={cn('block text-body transition-colors', task.status === 'done' ? 'text-ink-2 line-through decoration-ink-2/50' : 'text-ink')}>{task.text}</span>
       {task.note && <span className="mt-0.5 block text-sub text-ink-2">{task.note}</span>}
     </>
   );

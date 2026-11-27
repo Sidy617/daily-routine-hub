@@ -5,15 +5,18 @@
 
 :root[data-theme-id='meulic'] {
   color-scheme: light;
+  /* --tint is your colour as text, icons and rings; --tint-fill is your colour under white text. */
   --tint: var(--person, #0a84ff);
+  --tint-fill: var(--person, #0a84ff);
   --tint-ink: #ffffff;
   --bg: #eef1f6;
   --ink: #0b0b0f;
-  --ink-2: rgb(60 60 67 / 0.68);
-  --ink-3: rgb(60 60 67 / 0.4);
+  /* ink-2 is for every secondary text; ink-3 only for placeholders, arrows and disabled controls. */
+  --ink-2: rgb(60 60 67 / 0.76);
+  --ink-3: rgb(60 60 67 / 0.56);
   --line: rgb(60 60 67 / 0.13);
   --fill: rgb(118 118 128 / 0.12);
-  --danger: #ff3b30;
+  --danger: #c62a20;
   --success: #34c759;
 
   --glass: rgb(255 255 255 / 0.56);
@@ -41,6 +44,27 @@
     radial-gradient(90% 60% at 85% 0%, #fff3cf 0%, transparent 55%),
     radial-gradient(120% 90% at 0% 100%, #d4e6ff 0%, transparent 60%),
     linear-gradient(180deg, #dcebff 0%, #f3f6fb 60%, #eef2f8 100%);
+  /* Two soft lights that drift slowly across the sky (see .wallpaper in app.css). */
+  --glow-1: rgb(255 214 140 / 0.5);
+  --glow-2: rgb(130 180 255 / 0.42);
+}
+
+/* Two soft lights drift across the sky, slowly enough to read as weather, not motion. */
+:root[data-theme-id='meulic'] .wallpaper::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(30% 26% at 30% 32%, var(--glow-1) 0%, transparent 70%),
+    radial-gradient(28% 24% at 70% 66%, var(--glow-2) 0%, transparent 70%);
+  animation: sky-drift 56s steps(560) infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme-id='meulic'] .wallpaper::before {
+    animation: none;
+  }
 }
 
 :root[data-theme-id='meulic'][data-daypart='dawn'] {
@@ -48,6 +72,8 @@
     radial-gradient(120% 80% at 0% 0%, #ffd8c4 0%, transparent 55%),
     radial-gradient(100% 70% at 100% 8%, #ffe9b8 0%, transparent 50%),
     linear-gradient(180deg, #f6efe9 0%, #e9eef8 100%);
+  --glow-1: rgb(255 170 140 / 0.5);
+  --glow-2: rgb(255 222 150 / 0.42);
 }
 
 :root[data-theme-id='meulic'][data-daypart='dusk'] {
@@ -55,12 +81,16 @@
     radial-gradient(110% 70% at 100% 0%, #ffd2a6 0%, transparent 55%),
     radial-gradient(100% 80% at 0% 30%, #ffcdc6 0%, transparent 55%),
     linear-gradient(180deg, #f9e8df 0%, #e6e9f4 100%);
+  --glow-1: rgb(255 165 110 / 0.48);
+  --glow-2: rgb(255 150 160 / 0.36);
 }
 
 :root[data-theme-id='meulic'][data-daypart='night'] {
   --wallpaper:
     radial-gradient(120% 80% at 50% 0%, #dde6f7 0%, transparent 60%),
     linear-gradient(180deg, #e7ebf3 0%, #f1f3f8 100%);
+  --glow-1: rgb(165 190 255 / 0.4);
+  --glow-2: rgb(190 225 240 / 0.36);
 }
 
 /* Dark: the same sky at night. */
@@ -68,11 +98,11 @@
   color-scheme: dark;
   --bg: #07090d;
   --ink: #f5f5f7;
-  --ink-2: rgb(235 235 245 / 0.64);
-  --ink-3: rgb(235 235 245 / 0.34);
+  --ink-2: rgb(235 235 245 / 0.66);
+  --ink-3: rgb(235 235 245 / 0.46);
   --line: rgb(255 255 255 / 0.09);
   --fill: rgb(118 118 128 / 0.24);
-  --danger: #ff453a;
+  --danger: #ff6961;
   --success: #30d158;
 
   --glass: rgb(32 34 40 / 0.5);
@@ -89,6 +119,8 @@
     radial-gradient(90% 70% at 80% 0%, rgb(70 130 255 / 0.3) 0%, transparent 60%),
     radial-gradient(70% 60% at 0% 100%, rgb(40 180 170 / 0.18) 0%, transparent 60%),
     #06080c;
+  --glow-1: rgb(70 130 255 / 0.3);
+  --glow-2: rgb(40 180 170 / 0.22);
 }
 
 :root[data-theme-id='meulic'].dark[data-daypart='dawn'] {
@@ -96,6 +128,8 @@
     radial-gradient(90% 60% at 0% 0%, rgb(255 140 90 / 0.28) 0%, transparent 60%),
     radial-gradient(80% 60% at 100% 100%, rgb(60 110 200 / 0.25) 0%, transparent 60%),
     #07090d;
+  --glow-1: rgb(255 140 90 / 0.26);
+  --glow-2: rgb(60 110 200 / 0.26);
 }
 
 :root[data-theme-id='meulic'].dark[data-daypart='dusk'] {
@@ -103,10 +137,27 @@
     radial-gradient(90% 60% at 100% 0%, rgb(255 150 60 / 0.26) 0%, transparent 60%),
     radial-gradient(80% 70% at 0% 40%, rgb(230 80 90 / 0.18) 0%, transparent 60%),
     #080709;
+  --glow-1: rgb(255 150 60 / 0.24);
+  --glow-2: rgb(230 80 90 / 0.2);
 }
 
 :root[data-theme-id='meulic'].dark[data-daypart='night'] {
   --wallpaper:
     radial-gradient(100% 70% at 50% 0%, rgb(50 90 180 / 0.26) 0%, transparent 65%),
     #05060a;
+  --glow-1: rgb(50 90 180 / 0.28);
+  --glow-2: rgb(30 130 150 / 0.18);
+}
+
+/* Your colour stays yours, but keeps its contrast. On light glass and under white text it may darken;
+   as text on dark glass it brightens, the way Apple brightens its colours in dark mode.
+   Browsers without relative colours (Safari before 18) show it as picked. */
+@supports (color: oklch(from red min(l, 0.5) c h)) {
+  :root[data-theme-id='meulic'] {
+    --tint: oklch(from var(--person, #0a84ff) min(l, 0.53) c h);
+    --tint-fill: oklch(from var(--person, #0a84ff) min(l, 0.53) c h);
+  }
+  :root[data-theme-id='meulic'].dark {
+    --tint: oklch(from var(--person, #0a84ff) max(l, 0.76) c h);
+  }
 }

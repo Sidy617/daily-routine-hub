@@ -9,7 +9,7 @@ export function Group({ title, footer, children, className }: { title?: string; 
     <section className={cn('space-y-1.5', className)}>
       {title && <h2 className="label-case px-4 text-sub font-medium text-ink-2">{title}</h2>}
       <div className="glass divide-y divide-line overflow-hidden rounded-card">{children}</div>
-      {footer && <p className="px-4 text-sub text-ink-3">{footer}</p>}
+      {footer && <p className="px-4 text-sub text-ink-2">{footer}</p>}
     </section>
   );
 }
@@ -48,7 +48,10 @@ export function Row({
   const body = (
     <>
       {icon && (
-        <span className="grid size-[30px] shrink-0 place-items-center rounded-[8px] text-white [&_svg]:size-[17px]" style={{ background: tile ?? 'var(--tint)' }}>
+        <span
+          className={cn('grid size-[30px] shrink-0 place-items-center rounded-[8px] [&_svg]:size-[17px]', tile ? 'text-white' : 'bg-tint-fill text-tint-ink')}
+          style={tile ? { background: tile } : undefined}
+        >
           {icon}
         </span>
       )}

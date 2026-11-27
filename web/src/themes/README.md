@@ -21,10 +21,11 @@ Your theme is yours: others may use it but do not edit it without asking you.
 | Token | What it colours |
 |---|---|
 | `--wallpaper` | the sky behind everything (gradients are allowed here); vary it with `[data-daypart='dawn'/'day'/'dusk'/'night']` |
+| `--glow-1`, `--glow-2` | Meulic's two lights that drift over the sky on `.wallpaper::before` (animation `sky-drift` in app.css); a theme without them has a still sky |
 | `--bg` | fallback ground and the browser bar |
-| `--ink`, `--ink-2`, `--ink-3` | main, quieter and quietest text |
+| `--ink`, `--ink-2`, `--ink-3` | main text; every secondary text; placeholders, arrows and disabled controls only |
 | `--line`, `--fill` | hairlines; quiet fills for fields and controls |
-| `--tint`, `--tint-ink` | the action colour and text on it; Meulic uses the person's colour (`--person`) |
+| `--tint`, `--tint-fill`, `--tint-ink` | the action colour as text, icons and rings; the same colour as a fill under text; the text on that fill. Meulic uses the person's colour (`--person`), darkened where it would be too light and brightened as text in dark mode, so check yours at 4.5:1 in light and dark |
 | `--danger`, `--success` | delete, switches that are on |
 | `--glass`, `--glass-strong`, `--glass-border`, `--glass-blur`, `--glass-sat`, `--glass-shadow` | the frosted cards, sheets and menus |
 | `--glass-rim`, `--glass-tint`, `--glass-tint-frosted`, `--glass-highlight`, `--glass-foreground` | the liquid-glass tabs (from 21st.dev) |

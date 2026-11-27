@@ -86,7 +86,7 @@ export function AddSheet({
                 onClick={() => setTarget(b.id)}
                 className={cn(
                   'title-case h-9 shrink-0 rounded-full px-4 text-sub font-semibold transition-colors',
-                  target === b.id ? 'bg-tint text-tint-ink' : 'bg-fill text-ink-2 hover:text-ink',
+                  target === b.id ? 'bg-tint-fill text-tint-ink' : 'bg-fill text-ink-2 hover:text-ink',
                 )}
               >
                 {b.name}
@@ -246,7 +246,7 @@ export function AutoField({
     <div>
       <div className="flex items-baseline justify-between">
         <Label htmlFor={id}>{label}</Label>
-        <span className={cn('px-1 text-cap', state === 'error' ? 'text-danger' : 'text-ink-3')} role="status">
+        <span className={cn('px-1 text-cap', state === 'error' ? 'text-danger' : 'text-ink-2')} role="status">
           {state === 'saving' ? 'Saving' : state === 'saved' ? 'Saved' : state === 'error' ? 'Not saved' : ''}
         </span>
       </div>

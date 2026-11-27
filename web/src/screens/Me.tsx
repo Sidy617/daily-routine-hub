@@ -59,7 +59,7 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
         <motion.section variants={stagger.item} className="glass flex flex-col items-center gap-3 rounded-card px-4 pt-6 pb-4 text-center">
           <button type="button" onClick={() => setSheet('picture')} className="relative rounded-full" aria-label="Change picture">
             <Avatar person={{ ...me, name }} size={92} className="shadow-[0_12px_30px_-14px_rgb(0_0_0/0.45)]" />
-            <span className="absolute -right-0.5 -bottom-0.5 grid size-8 place-items-center rounded-full bg-tint text-tint-ink ring-[3px] ring-[var(--glass-strong)]">
+            <span className="absolute -right-0.5 -bottom-0.5 grid size-8 place-items-center rounded-full bg-tint-fill text-tint-ink ring-[3px] ring-[var(--glass-strong)]">
               <Camera className="size-4" />
             </span>
           </button>
@@ -84,7 +84,7 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
               className="w-full rounded-lg bg-transparent text-center text-body text-ink-2 outline-none placeholder:text-ink-3 focus:bg-fill"
             />
           </div>
-          <p className="text-sub text-ink-3">{team.name}</p>
+          <p className="text-sub text-ink-2">{team.name}</p>
         </motion.section>
 
         <motion.div variants={stagger.item}>
@@ -92,7 +92,6 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
             <Row icon={<Palette />} tile={TILE.orange} label="Theme" value={theme.name} onClick={() => setSheet('theme')} />
             <Row
               icon={<Sparkles />}
-              tile={me.colour}
               label="Your colour"
               sub="Tints your app and marks you in the team"
               below={
@@ -367,7 +366,7 @@ function ThemeSheet({ open, onOpenChange, me, onPick }: { open: boolean; onOpenC
                   <span className="mt-2.5 block h-4 w-12 rounded-full" style={{ background: t.preview.tint }} />
                 </span>
                 {on && (
-                  <span className="absolute top-2 right-2 grid size-6 place-items-center rounded-full bg-tint text-tint-ink">
+                  <span className="absolute top-2 right-2 grid size-6 place-items-center rounded-full bg-tint-fill text-tint-ink">
                     <CheckIcon className="size-3.5" />
                   </span>
                 )}
@@ -380,7 +379,7 @@ function ThemeSheet({ open, onOpenChange, me, onPick }: { open: boolean; onOpenC
           );
         })}
       </div>
-      <p className="pb-3 text-center text-sub text-ink-3">Anyone in the team can add their own theme. See web/src/themes in the repo.</p>
+      <p className="pb-3 text-center text-sub text-ink-2">Anyone in the team can add their own theme. See web/src/themes in the repo.</p>
     </Sheet>
   );
 }
@@ -468,10 +467,10 @@ function DaySheet({ open, onOpenChange, me, blocks, onSaved }: { open: boolean; 
                     {x.starts} to {x.ends}
                   </span>
                   <span className="title-case min-w-0 flex-1 truncate text-body font-medium">{x.name || 'New block'}</span>
-                  <span className="text-sub text-ink-3">{x.tasks.filter(Boolean).length || ''}</span>
+                  <span className="text-sub text-ink-2">{x.tasks.filter(Boolean).length || ''}</span>
                 </button>
               ))}
-              {!list.length && <p className="px-4 py-4 text-sub text-ink-3">No blocks yet.</p>}
+              {!list.length && <p className="px-4 py-4 text-sub text-ink-2">No blocks yet.</p>}
             </div>
             <Button
               variant="quiet"
@@ -486,7 +485,7 @@ function DaySheet({ open, onOpenChange, me, blocks, onSaved }: { open: boolean; 
             >
               <Plus /> Add a block
             </Button>
-            <p className="px-1 text-center text-sub text-ink-3">Changes start with your next new day. Past days keep their own blocks.</p>
+            <p className="px-1 text-center text-sub text-ink-2">Changes start with your next new day. Past days keep their own blocks.</p>
           </motion.div>
         ) : (
           <motion.div key="form" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.18 }} className="space-y-4 pb-2">

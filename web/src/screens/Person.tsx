@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, Flame, Lock } from 'lucide-react';
 import { blockTotals, dayTotals, getWeekGoals, readDay } from '@/lib/api';
 import { addDays, addMonths, dayLabel, monthGrid, monthLabel, monthStart, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
+import { personStyle } from '@/lib/colours';
 import { go, useLoad } from '@/lib/hooks';
 import { pct, score, streak, sumTotals } from '@/lib/stats';
 import type { Profile } from '@/lib/types';
@@ -52,7 +53,7 @@ export function Person({ me, person, view, date }: { me: Profile; person: Profil
 
       {!visible ? (
         <div className="glass flex items-center gap-3 rounded-card p-4">
-          <Lock className="size-5 text-ink-3" />
+          <Lock className="size-5 text-ink-2" />
           <p className="text-body text-ink-2">{person.name} keeps their days private.</p>
         </div>
       ) : (
@@ -80,7 +81,7 @@ function Pager({ label, onPrev, onNext, nextDisabled }: { label: string; onPrev:
         <ChevronLeft className="size-5" />
       </button>
       <span className="title-case text-body font-semibold">{label}</span>
-      <button type="button" aria-label="Later" disabled={nextDisabled} onClick={onNext} className="grid size-9 place-items-center rounded-full text-tint hover:bg-fill disabled:opacity-30">
+      <button type="button" aria-label="Later" disabled={nextDisabled} onClick={onNext} className="grid size-9 place-items-center rounded-full text-tint hover:bg-fill disabled:text-ink-3">
         <ChevronRight className="size-5" />
       </button>
     </div>
@@ -93,7 +94,7 @@ function PersonDay({ me, person, date, base }: { me: Profile; person: Profile; d
   return (
     <motion.div variants={stagger.container} initial="initial" animate="animate" className="flex flex-col gap-3">
       <Pager label={dayLabel(date)} onPrev={() => go(`${base}/day/${addDays(date, -1)}`)} onNext={() => go(`${base}/day/${addDays(date, 1)}`)} />
-      {data && !full && <p className="px-4 py-6 text-center text-sub text-ink-3">Nothing was recorded on this day.</p>}
+      {data && !full && <p className="px-4 py-6 text-center text-sub text-ink-2">Nothing was recorded on this day.</p>}
       {full && (
         <>
           <p className="px-1 text-sub text-ink-2">
@@ -154,11 +155,11 @@ function PersonWeek({ person, date, base }: { person: Profile; date: string; bas
             <li key={d}>
               <a href={`#${base}/day/${d}`} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 hover:bg-fill/60">
                 <span className={d === todayISO() ? 'text-body font-semibold text-tint' : 'text-body font-medium'}>{shortDay(d)}</span>
-                <span className="h-2 overflow-hidden rounded-full bg-fill">
+                <span className="person-colour h-2 overflow-hidden rounded-full bg-fill" style={personStyle(person.colour)}>
                   {t && t.total > 0 && (
                     <motion.span
                       className="block h-full rounded-full"
-                      style={{ background: person.colour }}
+                      style={{ background: 'var(--mark)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.round(score(t) * 100)}%` }}
                       transition={{ type: 'spring', stiffness: 80, damping: 18 }}
@@ -197,7 +198,7 @@ function PersonMonth({ person, date, base }: { person: Profile; date: string; ba
       <motion.section variants={stagger.item} className="glass rounded-card p-3">
         <div className="grid grid-cols-7 gap-1.5">
           {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="pb-1 text-center text-cap font-semibold text-ink-3">
+            <span key={i} className="pb-1 text-center text-cap font-semibold text-ink-2">
               {d}
             </span>
           ))}
@@ -210,8 +211,8 @@ function PersonMonth({ person, date, base }: { person: Profile; date: string; ba
                 key={d}
                 href={`#${base}/day/${d}`}
                 aria-label={t ? `${dayLabel(d)}: ${t.done} of ${t.total}` : `${dayLabel(d)}: no record`}
-                className={`tabular grid aspect-square place-items-center rounded-[10px] text-sub font-semibold transition-transform hover:scale-105 ${d === todayISO() ? 'ring-2 ring-tint' : ''}`}
-                style={{ background: s !== null ? `color-mix(in srgb, ${person.colour} ${Math.round(22 + s * 78)}%, transparent)` : 'var(--fill)', color: s !== null && s > 0.55 ? 'white' : undefined }}
+                className={`person-colour tabular grid aspect-square place-items-center rounded-[10px] text-sub font-semibold transition-transform hover:scale-105 ${d === todayISO() ? 'ring-2 ring-tint' : ''}`}
+                style={personStyle(person.colour, { background: s !== null ? `color-mix(in srgb, var(--heat) ${Math.round(18 + s * 44)}%, transparent)` : 'var(--fill)' })}
               >
                 {Number(d.slice(8))}
               </a>
