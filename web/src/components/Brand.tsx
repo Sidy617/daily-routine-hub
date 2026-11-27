@@ -2,34 +2,62 @@ import { useId } from 'react';
 import { ORG_NAME, APP_NAME } from '@/lib/config';
 import { cn, rem } from '@/lib/utils';
 
-// The Simulation logo, drawn from the brand picture: a ring holding four bars, three of them
-// turning back round the centre and the last opening into a leaf. Same drawing as public/icon.svg.
+// The Simulation logo, traced from the brand picture: a ring holding four bars. The top three run
+// straight past the centre before turning back round it; the last opens into a leaf.
+// Same drawing as public/icon.svg (made by scripts/make-icons.mjs).
 export const LOGO_PATHS = [
-  'M52.3 32H110A78 78 0 1 1 32 110',
-  'M28.1 58H110A52 52 0 1 1 58 110',
-  'M16.6 84H110A26 26 0 0 1 136 110C136 132 128 148 115 153',
-  'M13 110H91C106 110 120 124 115 153',
-  'M67 110C67 135 90 153 115 153',
+  'M49.7 34H110A76 76 0 1 1 34 110',
+  'M26.3 61H120C142 61 160 81.6 160 107A50.3 50 0 0 1 59.5 110',
+  'M16.3 85H112C126 85 137 96 137 112C137 128 131 146 116 153',
+  'M13 110H94C108 110 118 121 118 135C118 143 117 149 116 153',
+  'M67 110C68 135 90 153 116 153',
 ];
 
-/** The Simulation logo, as drawn: orange line rings, no tile behind. */
+function Lines() {
+  return (
+    <>
+      <circle cx="110" cy="110" r="97" />
+      {LOGO_PATHS.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </>
+  );
+}
+
+/**
+ * The Simulation logo as orange glass tubes: a dark edge with a soft shadow, the orange body,
+ * and a light line along the top. Small marks drop the light line and draw thicker so they stay solid.
+ */
 export function BrandMark({ size = 36, className }: { size?: number; className?: string }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const fill = `sim-logo-${uid}`;
+  const body = `sim-body-${uid}`;
+  const shadow = `sim-shadow-${uid}`;
+  const small = size < 44;
+  const w = small ? 12 : 10;
   return (
-    <svg viewBox="0 0 220 220" className={cn('shrink-0', className)} style={{ width: rem(size), height: rem(size) }} aria-hidden="true">
+    <svg viewBox="0 0 220 220" className={cn('shrink-0 overflow-visible', className)} style={{ width: rem(size), height: rem(size) }} aria-hidden="true">
       <defs>
-        <linearGradient id={fill} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ff8a3d" />
-          <stop offset="1" stopColor="#e5560c" />
+        <linearGradient id={body} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ff9a52" />
+          <stop offset="0.55" stopColor="#f26a1b" />
+          <stop offset="1" stopColor="#d9520a" />
         </linearGradient>
+        <filter id={shadow} x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="2.5" dy="4" stdDeviation="3" floodColor="#a33a00" floodOpacity="0.35" />
+        </filter>
       </defs>
-      {/* Thicker lines on small marks so they stay solid. */}
-      <g fill="none" stroke={`url(#${fill})`} strokeWidth={size < 44 ? 9 : 7} strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="110" cy="110" r="97" />
-        {LOGO_PATHS.map((d) => (
-          <path key={d} d={d} />
-        ))}
+      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <g stroke="#b9450a" strokeWidth={w} filter={`url(#${shadow})`}>
+          <Lines />
+        </g>
+        <g stroke={`url(#${body})`} strokeWidth={w * 0.62} transform="translate(-0.5 -0.5)">
+          <Lines />
+        </g>
+        {!small && (
+          <g stroke="#ffd2a8" strokeOpacity="0.85" strokeWidth={w * 0.18} transform="translate(-1.5 -1.5)">
+            <Lines />
+          </g>
+        )}
       </g>
     </svg>
   );
