@@ -11,6 +11,7 @@ import { Avatar } from '@/components/Avatar';
 import { BlockCard, NowCard } from '@/components/Day';
 import { AddSheet, AutoField, ReviewSheet, TaskSheet } from '@/components/DaySheets';
 import { DateMenu } from '@/components/DateMenu';
+import { LiveClock } from '@/components/LiveClock';
 import { LargeTitle, Screen, stagger } from '@/components/Screen';
 import { ShareButton } from '@/components/ShareCard';
 import { Button } from '@/components/ui/button';
@@ -93,7 +94,17 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
   return (
     <Screen>
       <LargeTitle
-        eyebrow={relative ? dayLabel(day) : 'Your day'}
+        eyebrow={
+          isToday ? (
+            <>
+              {dayLabel(day)} · <LiveClock className="font-semibold text-ink" />
+            </>
+          ) : relative ? (
+            dayLabel(day)
+          ) : (
+            'Your day'
+          )
+        }
         title={
           <DateMenu meId={me.id} date={day}>
             {relative ?? dayLabel(day)}

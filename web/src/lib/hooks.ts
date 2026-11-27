@@ -51,6 +51,25 @@ export function useOnReturn(fn: () => void) {
   }, []);
 }
 
+/** The time now. It turns over with the device's clock, on each new minute, and at once when the
+ *  app comes back into view, so a phone that slept for an hour never shows the old time. */
+export function useMinute(): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    let timer = 0;
+    const next = () => {
+      timer = window.setTimeout(() => {
+        setNow(new Date());
+        next();
+      }, 60_000 - (Date.now() % 60_000) + 20);
+    };
+    next();
+    return () => window.clearTimeout(timer);
+  }, []);
+  useOnReturn(() => setNow(new Date()));
+  return now;
+}
+
 /** Load something; reload when deps change or on return. */
 export function useLoad<T>(load: () => Promise<T>, deps: unknown[]) {
   const [data, setData] = useState<T | null>(null);

@@ -171,6 +171,8 @@
   --sky-horizon: color-mix(in oklab, var(--sky-a-horizon), var(--sky-b-horizon) var(--sky-t));
   --sky-sun: color-mix(in oklab, var(--sky-a-sun), var(--sky-b-sun) var(--sky-t));
   --sky-glow: color-mix(in oklab, var(--sky-a-glow), var(--sky-b-glow) var(--sky-t));
+  /* Where to draw the sun on the .sky-sun layer, which reaches 35% above the screen. */
+  --sun-at: var(--sun-x) calc((var(--sun-y) + 35%) / 1.35);
 }
 /* The sun (or moon) and the stars are layers of the wallpaper; themes paint them. */
 .wallpaper > * {
@@ -178,11 +180,24 @@
   inset: 0;
   pointer-events: none;
 }
+/* The sun's layer reaches above the screen, so it can rise into place without its edge showing. */
+.wallpaper > .sky-sun {
+  top: -35%;
+}
 /* When the app opens, the sun rises into its place. */
 @keyframes sun-rise {
   from {
-    transform: translate3d(0, 18%, 0);
+    transform: translate3d(0, 13%, 0);
     opacity: 0;
+  }
+}
+/* The live clock's colon breathes once a second, so the time reads as live. */
+.clock-colon {
+  animation: clock-breathe 1s ease-in-out infinite;
+}
+@keyframes clock-breathe {
+  50% {
+    opacity: 0.25;
   }
 }
 @keyframes twinkle {

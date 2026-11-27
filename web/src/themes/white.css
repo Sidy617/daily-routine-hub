@@ -50,7 +50,7 @@
 }
 
 :root[data-theme-id='white'] .sky-sun {
-  background: radial-gradient(circle at var(--sun-x) var(--sun-y), var(--sky-sun) 0%, transparent 48%);
+  background: radial-gradient(circle 64vmax at var(--sun-at), var(--sky-sun) 0%, transparent 68%);
   animation: sun-rise 2.6s var(--ease-out-soft) both;
 }
 

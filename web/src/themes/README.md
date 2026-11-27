@@ -14,7 +14,7 @@ The size of everything (85% to 120%) is not part of a theme: each person sets it
 
 The sun rises at the left at 06:15, is highest at 12:30 and sets at the right at 18:45; the moon takes the same path by night. Through the day the sky passes seven phases, `night`, `dawn`, `morning`, `noon`, `afternoon`, `sunset` and `dusk`, and `components/Wallpaper.tsx` blends the two it is between, once a minute (`lib/sky.ts` has the times).
 
-A theme joins in by giving each phase its colours, `--phase-<phase>-top`, `-horizon`, `-sun` and `-glow`, then using the blends `--sky-top`, `--sky-horizon`, `--sky-sun`, `--sky-glow` and the sun's place `--sun-x`, `--sun-y`: in `--wallpaper`, on the `.sky-sun` layer, and on `.sky-stars` (with `[data-sun='down']` for night). Meulic uses all of them; White only `-sun`; Original none, so its sky stays as it was.
+A theme joins in by giving each phase its colours, `--phase-<phase>-top`, `-horizon`, `-sun` and `-glow`, then using the blends `--sky-top`, `--sky-horizon`, `--sky-sun`, `--sky-glow`: in `--wallpaper`, on the `.sky-sun` layer, and on `.sky-stars` (with `[data-sun='down']` for night). The `.sky-sun` layer reaches 35% above the screen so the sun can rise in without its edge showing; draw the sun there at `var(--sun-at)` with a fixed size, as Meulic does (`circle 64vmax at var(--sun-at)`). `--sun-x` and `--sun-y` are the sun's place on the screen itself. Meulic uses all of them; White only `-sun`; Original none, so its sky stays as it was.
 
 ## Make your own
 

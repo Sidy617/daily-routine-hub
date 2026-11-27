@@ -130,7 +130,7 @@
 
 /* The sun by day and the moon by night, on their arc; the sun rises into place when the app opens. */
 :root[data-theme-id='meulic'] .sky-sun {
-  background: radial-gradient(circle at var(--sun-x) var(--sun-y), var(--sky-sun) 0%, color-mix(in oklab, var(--sky-sun) 38%, transparent) 13%, transparent 46%);
+  background: radial-gradient(circle 64vmax at var(--sun-at), var(--sky-sun) 0%, color-mix(in oklab, var(--sky-sun) 38%, transparent) 19%, transparent 66%);
   animation: sun-rise 2.6s var(--ease-out-soft) both;
 }
 
