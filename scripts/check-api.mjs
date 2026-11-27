@@ -12,12 +12,20 @@ const url = /SUPABASE_URL = '([^']+)'/.exec(config)[1];
 const key = /SUPABASE_KEY = '([^']+)'/.exec(config)[1];
 const api = readFileSync(join(root, 'web', 'src', 'lib', 'api.ts'), 'utf8');
 
-const tables = [...new Set([...api.matchAll(/\.from\('([a-z_]+)'\)/g)].map((m) => m[1]))].filter((t) => t !== 'avatars');
-const embeds = [...api.matchAll(/\.from\('([a-z_]+)'\)\.select\('([a-z_]+)\(/g)].map((m) => [m[1], m[2]]);
+// A call these patterns cannot read would be skipped without a word (login_faces_v2 was, 27 Nov 2026), so it fails instead.
+const count = (re) => [...api.matchAll(re)].length;
+const unread = count(/\.rpc\(/g) - count(/\.rpc\('[a-z0-9_]+'/g) + count(/\bdb\.from\(/g) - count(/\bdb\.from\('[a-z0-9_]+'\)/g);
+if (unread) {
+  console.error(`${unread} call(s) in api.ts this check cannot read. Name tables and functions in plain quotes, or teach the patterns below.`);
+  process.exit(1);
+}
+
+const tables = [...new Set([...api.matchAll(/\.from\('([a-z0-9_]+)'\)/g)].map((m) => m[1]))].filter((t) => t !== 'avatars');
+const embeds = [...api.matchAll(/\.from\('([a-z0-9_]+)'\)\.select\('([a-z0-9_]+)\(/g)].map((m) => [m[1], m[2]]);
 // Every column list the app reads, so a column the database lacks fails here, not on someone's phone.
-const selects = [...new Set([...api.matchAll(/\.from\('([a-z_]+)'\)\.select\('([^'*]+)'\)/g)].map((m) => `${m[1]}?select=${m[2]}`))];
+const selects = [...new Set([...api.matchAll(/\.from\('([a-z0-9_]+)'\)\.select\('([^'*]+)'\)/g)].map((m) => `${m[1]}?select=${m[2]}`))];
 // Functions are found by name and input names, so send each call's inputs (as null).
-const rpcs = [...new Map([...api.matchAll(/\.rpc\('([a-z_]+)'(?:,\s*\{([^}]*)\})?/g)].map((m) => {
+const rpcs = [...new Map([...api.matchAll(/\.rpc\('([a-z0-9_]+)'(?:,\s*\{([^}]*)\})?/g)].map((m) => {
   const args = (m[2] ?? '').split(',').map((a) => a.split(':')[0].trim()).filter(Boolean);
   return [m[1], Object.fromEntries(args.map((a) => [a, null]))];
 })).entries()];

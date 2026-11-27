@@ -46,7 +46,7 @@ export async function createTeam(name: string) {
 
 /** The public sign-in page's faces: members of teams shown there who allow it. */
 export async function loginFaces(): Promise<LoginFace[]> {
-  return must(await db.rpc('login_faces'));
+  return must(await db.rpc('login_faces_v2'));
 }
 
 /** Uploads my photo into my own folder and points my profile at it. Returns the new address. */
