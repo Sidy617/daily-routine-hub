@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ALargeSmall, Archive, Camera, Check as CheckIcon, ChevronLeft, Eye, History, ImageUp, LogOut, Palette, Plus, Sparkles, Trash2, Users } from 'lucide-react';
-import { clearMyPhoto, db, getBlocks, importDays, saveBlocks, setMyPhoto, updateProfile } from '@/lib/api';
+import { clearMyPhoto, db, getBlocks, importDays, saveRoutine, setMyPhoto, updateProfile } from '@/lib/api';
 import { CHARACTERS, CHARACTER_NAMES, TONES, TONE_SWATCHES, avatarKey, avatarUrl, splitKey, squarePhoto } from '@/lib/avatars';
 import { PERSON_COLOURS, TILE } from '@/lib/colours';
-import { QUARTER_HOURS, hm } from '@/lib/dates';
+import { QUARTER_HOURS, hm, todayISO } from '@/lib/dates';
 import { useLoad } from '@/lib/hooks';
 import { readOldDays, readOldWeekGoals } from '@/lib/importOld';
 import { minutesOf } from '@/lib/now';
@@ -447,8 +447,8 @@ function DaySheet({ open, onOpenChange, me, blocks, onSaved }: { open: boolean; 
     setBusy(true);
     try {
       const sorted = sortByTime(list).map((b) => ({ ...b, name: b.name.trim(), tasks: b.tasks.map((t) => t.trim()).filter(Boolean).slice(0, 20) }));
-      await saveBlocks(me.id, sorted, removed);
-      toast('Saved. New days start this way.');
+      const changed = await saveRoutine(me.id, todayISO(), blocks, sorted, removed);
+      toast(changed ? 'Saved. Today is updated too.' : 'Saved.');
       onSaved();
       onOpenChange(false);
     } catch {
@@ -517,7 +517,7 @@ function DaySheet({ open, onOpenChange, me, blocks, onSaved }: { open: boolean; 
             >
               <Plus /> Add a block
             </Button>
-            <p className="px-1 text-center text-sub text-ink-2">Changes start with your next new day. Past days keep their own blocks.</p>
+            <p className="px-1 text-center text-sub text-ink-2">Changes show today. Past days keep their own blocks.</p>
           </motion.div>
         ) : (
           <motion.div key="form" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.18 }} className="space-y-4 pb-2">
