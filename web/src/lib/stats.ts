@@ -59,3 +59,33 @@ export function mostMissed(rows: BlockTotal[]): string | null {
   }
   return worstScore < 0.75 ? worst : null;
 }
+
+export interface Standing {
+  id: string;
+  total: number;
+  done: number;
+  half: number;
+  /** Share of tasks done, a half counting as half; null when there were no tasks. */
+  score: number | null;
+  /** Days with at least one task ticked or half done. */
+  activeDays: number;
+}
+
+/**
+ * Teammates side by side over the same days, best done share first.
+ * People with no tasks in the period come last, in the order given: there is nothing to compare.
+ */
+export function compare(ids: string[], rows: DayTotal[]): Standing[] {
+  const list = ids.map((id) => {
+    const mine = rows.filter((r) => r.user_id === id);
+    const sum = sumTotals(mine);
+    return { id, ...sum, score: sum.total ? score(sum) : null, activeDays: activeDays(mine) };
+  });
+  return list
+    .map((s, i) => ({ s, i }))
+    .sort((a, b) => {
+      if (a.s.score === null || b.s.score === null) return a.s.score === null ? (b.s.score === null ? a.i - b.i : 1) : -1;
+      return b.s.score - a.s.score || b.s.done - a.s.done || a.i - b.i;
+    })
+    .map(({ s }) => s);
+}

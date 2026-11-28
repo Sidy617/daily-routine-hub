@@ -1,7 +1,9 @@
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, Flame, Lock } from 'lucide-react';
-import { blockTotals, dayTotals, getWeekGoals, readDay } from '@/lib/api';
-import { addDays, addMonths, dayLabel, monthGrid, monthLabel, monthStart, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
+import { blockTotals, dayTotals, getMonthGoals, getWeekGoals, linesOn, readDay } from '@/lib/api';
+import { KIND_LABEL } from '@/lib/board';
+
+import { addDays, addMonths, clock, dayLabel, monthGrid, monthLabel, monthStart, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
 import { personStyle } from '@/lib/colours';
 import { go, useLoad } from '@/lib/hooks';
 import { pct, score, streak, sumTotals } from '@/lib/stats';
@@ -52,10 +54,13 @@ export function Person({ me, person, view, date }: { me: Profile; person: Profil
       </header>
 
       {!visible ? (
-        <div className="glass flex items-center gap-3 rounded-card p-4">
-          <Lock className="size-5 text-ink-2" />
-          <p className="text-body text-ink-2">{person.name} keeps their days private.</p>
-        </div>
+        <>
+          <div className="glass flex items-center gap-3 rounded-card p-4">
+            <Lock className="size-5 text-ink-2" />
+            <p className="text-body text-ink-2">{person.name} keeps their days private.</p>
+          </div>
+          <Lines person={person} date={at} />
+        </>
       ) : (
         <>
           <GlassTabs value={view} onValueChange={(v) => go(`${base}/${v}/${at}`)}>
@@ -94,6 +99,7 @@ function PersonDay({ me, person, date, base }: { me: Profile; person: Profile; d
   return (
     <motion.div variants={stagger.container} initial="initial" animate="animate" className="flex flex-col gap-3">
       <Pager label={dayLabel(date)} onPrev={() => go(`${base}/day/${addDays(date, -1)}`)} onNext={() => go(`${base}/day/${addDays(date, 1)}`)} />
+      <Lines person={person} date={date} />
       {data && !full && <p className="px-4 py-6 text-center text-sub text-ink-2">Nothing was recorded on this day.</p>}
       {full && (
         <>
@@ -188,8 +194,12 @@ function PersonMonth({ person, date, base }: { person: Profile; date: string; ba
   const grid = monthGrid(first);
   const flat = grid.flat().filter(Boolean) as string[];
   const { data } = useLoad(async () => {
-    const [totals, blocks] = await Promise.all([dayTotals([person.id], flat[0], flat[flat.length - 1]), blockTotals([person.id], flat[0], flat[flat.length - 1])]);
-    return { totals, blocks };
+    const [totals, blocks, goals] = await Promise.all([
+      dayTotals([person.id], flat[0], flat[flat.length - 1]),
+      blockTotals([person.id], flat[0], flat[flat.length - 1]),
+      getMonthGoals(person.id, first),
+    ]);
+    return { totals, blocks, goals };
   }, [person.id, first]);
   const thisMonth = monthStart(todayISO()) === first;
   return (
@@ -221,6 +231,30 @@ function PersonMonth({ person, date, base }: { person: Profile; date: string; ba
         </div>
       </motion.section>
       {data && <WeekSummary totals={data.totals} blocks={data.blocks} who="the" />}
+      {data?.goals && (
+        <motion.section variants={stagger.item} className="glass rounded-card p-4">
+          <p className="label-case text-sub font-semibold text-tint">Goals for {thisMonth ? 'this month' : monthLabel(first)}</p>
+          <p className="mt-1 whitespace-pre-wrap text-body">{data.goals}</p>
+        </motion.section>
+      )}
     </motion.div>
+  );
+}
+
+/** What they posted to the Board that day. The team sees these even when the day itself is private. */
+function Lines({ person, date }: { person: Profile; date: string }) {
+  const { data } = useLoad(async () => linesOn(person.id, date), [person.id, date]);
+  if (!data?.length) return null;
+  return (
+    <motion.section variants={stagger.item} className="glass divide-y divide-line overflow-hidden rounded-card">
+      {data.map((p) => (
+        <a key={p.id} href="#/team/board" className="block px-4 py-3 hover:bg-fill/60">
+          <span className="label-case block text-sub font-medium text-ink-2">
+            {p.kind === 'reply' ? 'Reply' : KIND_LABEL[p.kind]}, {clock(p.created_at)}
+          </span>
+          <span className="block whitespace-pre-wrap text-body">{p.body}</span>
+        </a>
+      ))}
+    </motion.section>
   );
 }

@@ -4,10 +4,11 @@ import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import { Lock, Plus, SunMedium, UserRound, Users } from 'lucide-react';
 import { db, getBlocks, getProfile, joinTeam, myTeam, teamPeople } from './lib/api';
 import { go, useOnReturn, useRoute } from './lib/hooks';
+import { useHereNow } from './lib/live';
 import type { Profile, Team } from './lib/types';
 import { cn } from './lib/utils';
 import { applyTheme } from './themes';
-import { Avatar } from './components/Avatar';
+import { Avatar, HereDot } from './components/Avatar';
 import { Brand } from './components/Brand';
 import { Wallpaper } from './components/Wallpaper';
 import { GlassTabBar } from './components/ui/glass-tab-bar';
@@ -77,6 +78,8 @@ function Shell() {
   }, []);
 
   const userId = session?.user.id;
+  // Who in my team has the app open right now (a dot on their picture).
+  const here = useHereNow(ctx?.team?.id ?? null, userId ?? '', ctx?.me.show_here ?? false);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -151,7 +154,7 @@ function Shell() {
   if (route.name === 'team') {
     tab = 'team';
     key = 'team';
-    screen = <TeamScreen me={me} team={team} people={people} view={route.view} />;
+    screen = <TeamScreen me={me} team={team} people={people} view={route.view} here={here} />;
   } else if (route.name === 'person') {
     const person = people.find((p) => p.id === route.id);
     tab = person?.id === me.id ? 'me' : 'team';
@@ -167,7 +170,7 @@ function Shell() {
     screen = <Me me={me} team={team} onProfile={setMe} openDay={route.open === 'day'} />;
   } else {
     key = `day-${route.date ?? 'today'}`;
-    screen = <Today me={me} date={route.date} />;
+    screen = <Today me={me} team={team} people={people} date={route.date} />;
   }
 
   const tabs = [
@@ -176,6 +179,7 @@ function Shell() {
     { id: 'me', label: 'Me', icon: <UserRound />, href: '/me' },
   ];
   const onToday = route.name === 'today';
+  const onBoard = route.name === 'team' && route.view === 'board';
 
   return (
     <div className="min-h-dvh lg:pl-[17.25rem]">
@@ -201,7 +205,9 @@ function Shell() {
         <div className="-mx-1 space-y-0.5 overflow-y-auto px-1">
           {people.map((p) => (
             <a key={p.id} href={`#/p/${p.id}/day`} className="flex h-10 items-center gap-2.5 rounded-[12px] px-2 transition-colors hover:bg-fill/70">
-              <Avatar person={p} size={28} />
+              <HereDot on={p.id !== me.id && here.has(p.id)}>
+                <Avatar person={p} size={28} />
+              </HereDot>
               <span className="title-case min-w-0 flex-1 truncate text-sub font-medium">{p.id === me.id ? `${p.name} (you)` : p.name}</span>
               {!canSee(p, me) && <Lock className="size-3.5 text-ink-3" />}
             </a>
@@ -211,6 +217,11 @@ function Shell() {
           {onToday && (
             <Button variant="tint" size="lg" onClick={() => window.dispatchEvent(new Event('routine:add'))}>
               <Plus /> New task
+            </Button>
+          )}
+          {onBoard && (
+            <Button variant="tint" size="lg" onClick={() => window.dispatchEvent(new Event('routine:post'))}>
+              <Plus /> New line
             </Button>
           )}
           <a href="#/me" className="flex items-center gap-2.5 rounded-[14px] p-2 transition-colors hover:bg-fill/70">
@@ -236,8 +247,12 @@ function Shell() {
             value={tab}
             onChange={(id) => go(tabs.find((t) => t.id === id)?.href ?? '/')}
             side={
-              onToday ? (
-                <button type="button" aria-label="New task" onClick={() => window.dispatchEvent(new Event('routine:add'))}>
+              onToday || onBoard ? (
+                <button
+                  type="button"
+                  aria-label={onBoard ? 'New line' : 'New task'}
+                  onClick={() => window.dispatchEvent(new Event(onBoard ? 'routine:post' : 'routine:add'))}
+                >
                   <Plus />
                 </button>
               ) : undefined
