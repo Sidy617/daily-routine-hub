@@ -10,6 +10,8 @@ export interface Profile {
   avatar: string | null;
   focus: string;
   show_on_login: boolean;
+  /** A dot on my picture while I have the app open. */
+  show_here: boolean;
 }
 
 /** What the public sign-in page may show about a team member. */
@@ -93,4 +95,39 @@ export interface FullDay {
   day: Day;
   blocks: DayBlock[];
   tasks: Task[];
+}
+
+/** A line on the team's Board. A reply answers a line; people and topics are its tags. */
+export type PostKind = 'aim' | 'learned' | 'cheer' | 'reply';
+
+export interface Post {
+  id: string;
+  team_id: string;
+  user_id: string;
+  /** The writer's own day. */
+  date: string;
+  kind: PostKind;
+  body: string;
+  parent_id: string | null;
+  people: string[];
+  topics: string[];
+  created_at: string;
+  edited_at: string | null;
+}
+
+export interface Pin {
+  id: string;
+  post_id: string;
+  team_id: string;
+  pinned_by: string;
+  pinned_at: string;
+}
+
+export type ReactionKind = 'clap' | 'on_it' | 'idea';
+
+export interface Reaction {
+  id: string;
+  post_id: string;
+  user_id: string;
+  kind: ReactionKind;
 }

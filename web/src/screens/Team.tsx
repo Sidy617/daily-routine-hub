@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, Copy, Lock, Share2, UserPlus } from 'lucide-react';
-import { blockTotals, dayTotals, reviewsOn } from '@/lib/api';
-import { addDays, clock, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
+import { blockTotals, dayTotals, reviewsOn, teamLinesOn } from '@/lib/api';
+import { latestAims } from '@/lib/board';
+import { addDays, addMonths, clock, monthLabel, monthStart, rangeLabel, shortDay, todayISO, weekDays, weekStart } from '@/lib/dates';
 import { personStyle } from '@/lib/colours';
 import { go, useLoad } from '@/lib/hooks';
-import { mostMissed, pct, score, sumTotals } from '@/lib/stats';
+import { useLiveTables } from '@/lib/live';
+import { compare, mostMissed, pct, score, sumTotals } from '@/lib/stats';
 import type { BlockTotal, Profile, Team } from '@/lib/types';
-import { Avatar, AvatarCircles } from '@/components/Avatar';
+import { Avatar, AvatarCircles, HereDot } from '@/components/Avatar';
+import { Board } from '@/components/Board';
+import { Segment } from '@/components/Segment';
 import { Ring } from '@/components/Ring';
 import { LargeTitle, Screen, stagger } from '@/components/Screen';
 import { Button } from '@/components/ui/button';
@@ -18,7 +22,7 @@ import { toast } from '@/components/ui/toast';
 
 import { canSee } from '@/lib/people';
 
-export function TeamScreen({ me, team, people, view }: { me: Profile; team: Team; people: Profile[]; view: 'day' | 'week' }) {
+export function TeamScreen({ me, team, people, view, here }: { me: Profile; team: Team; people: Profile[]; view: 'day' | 'board' | 'week'; here: Set<string> }) {
   const [invite, setInvite] = useState(false);
   const sharing = people.filter((p) => canSee(p, me)).length;
   return (
@@ -32,28 +36,33 @@ export function TeamScreen({ me, team, people, view }: { me: Profile; team: Team
           </Button>
         }
       />
-      <GlassTabs value={view} onValueChange={(v) => go(v === 'week' ? '/team/week' : '/team')}>
+      <GlassTabs value={view} onValueChange={(v) => go(v === 'day' ? '/team' : `/team/${v}`)}>
         <GlassTabsList className="w-full">
           <GlassTabsTrigger value="day">Today</GlassTabsTrigger>
-          <GlassTabsTrigger value="week">This week</GlassTabsTrigger>
+          <GlassTabsTrigger value="board">Board</GlassTabsTrigger>
+          <GlassTabsTrigger value="week">Stats</GlassTabsTrigger>
         </GlassTabsList>
       </GlassTabs>
-      {view === 'day' ? <TeamToday me={me} people={people} /> : <TeamWeek me={me} people={people} />}
+      {view === 'day' && <TeamToday me={me} team={team} people={people} here={here} />}
+      {view === 'board' && <Board me={me} team={team} people={people} here={here} />}
+      {view === 'week' && <TeamWeek me={me} people={people} />}
       <InviteSheet open={invite} onOpenChange={setInvite} team={team} people={people} />
     </Screen>
   );
 }
 
-function TeamToday({ me, people }: { me: Profile; people: Profile[] }) {
+/** Everyone's day so far. Moves live: a tick anywhere in the team shows here at once. */
+function TeamToday({ me, team, people, here }: { me: Profile; team: Team; people: Profile[]; here: Set<string> }) {
   const today = todayISO();
   const ids = people.map((p) => p.id);
   const { data, error, reload } = useLoad(
     async () => {
-      const [days, reviews] = await Promise.all([dayTotals(ids, today, today), reviewsOn(ids, today)]);
-      return { days, reviews };
+      const [days, reviews, lines] = await Promise.all([dayTotals(ids, today, today), reviewsOn(ids, today), teamLinesOn(team.id, today)]);
+      return { days, reviews, aims: latestAims(lines) };
     },
-    [ids.join(','), today],
+    [ids.join(','), today, team.id],
   );
+  useLiveTables(['tasks', 'posts'], reload);
   if (error)
     return (
       <div className="glass rounded-card p-4">
@@ -68,19 +77,23 @@ function TeamToday({ me, people }: { me: Profile; people: Profile[] }) {
       {people.map((p) => {
         const day = data?.days.find((d) => d.user_id === p.id);
         const review = data?.reviews.find((r) => r.user_id === p.id);
-        const line = review?.missed.split('\n')[0] || review?.tomorrow.split('\n')[0] || '';
         const visible = canSee(p, me);
+        // Their aim is on the Board for the whole team; the review line only when they share their day.
+        const aim = data?.aims.get(p.id)?.body.split('\n')[0];
+        const line = aim || (visible && (review?.missed.split('\n')[0] || review?.tomorrow.split('\n')[0])) || '';
         const status = !visible ? 'Keeps their days private' : !data ? ' ' : !day || !day.total ? 'Nothing yet today' : `Updated ${clock(day.updated_at)}`;
         const inner = (
           <>
-            <Avatar person={p} size={48} />
+            <HereDot on={p.id !== me.id && here.has(p.id)} size="md">
+              <Avatar person={p} size={48} />
+            </HereDot>
             <span className="min-w-0 flex-1">
               <span className="title-case flex items-baseline gap-1.5 text-head font-semibold text-ink">
                 <span className="truncate">{p.name || 'No name yet'}</span>
                 {p.id === me.id && <span className="shrink-0 text-sub font-normal text-ink-2">You</span>}
               </span>
               <span className="block truncate text-sub text-ink-2">{p.focus ? `${p.focus}. ${status}` : status}</span>
-              {visible && line && <span className="block truncate text-sub text-ink-2">{line}</span>}
+              {line && <span className="block truncate text-sub text-ink">{line}</span>}
             </span>
             {visible ? (
               <Ring value={day && day.total ? score(day) : 0} size={42} stroke={4.5} colour={p.colour} label={day ? `${day.done} of ${day.total}` : 'No tasks'}>
@@ -155,6 +168,7 @@ function TeamWeek({ me, people }: { me: Profile; people: Profile[] }) {
         </div>
       </motion.section>
       {data && <WeekSummary totals={data.totals} blocks={data.blocks} who="the team's" />}
+      <Compare me={me} people={shown} anchor={anchor} />
       {people.length > shown.length && (
         <p className="px-4 text-sub text-ink-2">People who keep their days private are not counted.</p>
       )}
@@ -204,6 +218,74 @@ export function WeekSummary({ totals, blocks, who }: { totals: { total: number; 
           </>
         )}
       </p>
+    </motion.section>
+  );
+}
+
+/**
+ * Teammates side by side for a week or a month: share of tasks done, tasks done and active days.
+ * Only people who share their days are counted; nobody is ranked on days they did not record.
+ */
+function Compare({ me, people, anchor }: { me: Profile; people: Profile[]; anchor: string }) {
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  const from = period === 'week' ? weekStart(anchor) : monthStart(anchor);
+  const to = period === 'week' ? addDays(from, 6) : addDays(addMonths(from, 1), -1);
+  const ids = people.map((p) => p.id);
+  const { data } = useLoad(async () => dayTotals(ids, from, to), [ids.join(','), from, to]);
+  const rows = data ? compare(ids, data) : [];
+  const byId = new Map(people.map((p) => [p.id, p]));
+  if (people.length < 2) return null;
+  return (
+    <motion.section variants={stagger.item} className="glass rounded-card p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="title-case text-head font-semibold">Compare</h2>
+          <p className="truncate text-sub text-ink-2">{period === 'week' ? rangeLabel(from, to) : monthLabel(from)}</p>
+        </div>
+        <Segment
+          label="Period"
+          value={period}
+          onChange={setPeriod}
+          options={[
+            { value: 'week', label: 'Week' },
+            { value: 'month', label: 'Month' },
+          ]}
+          className="w-[9.5rem] shrink-0"
+        />
+      </div>
+      <ul className="flex flex-col gap-3">
+        {rows.map((r) => {
+          const p = byId.get(r.id);
+          if (!p) return null;
+          return (
+            <li key={r.id}>
+              <a href={`#/p/${p.id}/${period}/${from}`} className="flex items-center gap-3 rounded-[12px]">
+                <Avatar person={p} size={36} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="title-case truncate text-body font-medium">{p.id === me.id ? 'You' : p.name}</span>
+                    <span className="tabular shrink-0 text-body font-semibold">{r.score === null ? '-' : `${pct(r.score)}%`}</span>
+                  </span>
+                  <span className="person-colour mt-1.5 block h-1.5 overflow-hidden rounded-full bg-fill" style={personStyle(p.colour)}>
+                    {r.score !== null && (
+                      <motion.span
+                        className="block h-full rounded-full"
+                        style={{ background: 'var(--mark)' }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.max(2, Math.round(r.score * 100))}%` }}
+                        transition={{ type: 'spring', stiffness: 90, damping: 20 }}
+                      />
+                    )}
+                  </span>
+                  <span className="mt-1 block truncate text-sub text-ink-2">
+                    {r.total ? `${r.done + r.half / 2} of ${r.total} tasks, ${r.activeDays} active ${r.activeDays === 1 ? 'day' : 'days'}` : 'No tasks recorded'}
+                  </span>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </motion.section>
   );
 }

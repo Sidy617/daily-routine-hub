@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronRight, Moon, RotateCcw, Target, X } from 'lucide-react';
-import { bringOver, getWeekGoals, openMyDay, readDay, saveWeekGoals, unfinishedOn, updateTask } from '@/lib/api';
-import { addDays, dayLabel, isSunday, todayISO, weekStart } from '@/lib/dates';
+import { BookOpen, ChevronRight, Flag, HandHeart, Moon, Plus, RotateCcw, Target, X } from 'lucide-react';
+import { bringOver, getMonthGoals, getWeekGoals, linesOn, openMyDay, readDay, saveMonthGoals, saveWeekGoals, unfinishedOn, updateTask } from '@/lib/api';
+import { KIND_LABEL, kindForHour } from '@/lib/board';
+import { addDays, dayLabel, isSunday, monthLabel, monthStart, rangeLabel, todayISO, weekStart } from '@/lib/dates';
 import { useLoad } from '@/lib/hooks';
 import { blockNow } from '@/lib/now';
-import type { FullDay, Profile, Task } from '@/lib/types';
+import type { FullDay, Post, Profile, Task, Team } from '@/lib/types';
 import { rem } from '@/lib/utils';
 import { Avatar } from '@/components/Avatar';
 import { BlockCard, NowCard } from '@/components/Day';
 import { AddSheet, AutoField, ReviewSheet, TaskSheet } from '@/components/DaySheets';
 import { DateMenu } from '@/components/DateMenu';
 import { LargeTitle, Screen, stagger } from '@/components/Screen';
+import { PostSheet } from '@/components/Board';
+import { Segment } from '@/components/Segment';
 import { ShareButton } from '@/components/ShareCard';
 import { Button } from '@/components/ui/button';
 import { Sheet } from '@/components/ui/sheet';
@@ -20,7 +23,7 @@ import { toast } from '@/components/ui/toast';
 const NEXT: Record<Task['status'], Task['status']> = { todo: 'done', half: 'done', done: 'todo' };
 
 /** My day. A past day with no record is never made up: it shows as empty until I add it. */
-export function Today({ me, date }: { me: Profile; date?: string }) {
+export function Today({ me, team, people, date }: { me: Profile; team: Team; people: Profile[]; date?: string }) {
   const today = todayISO();
   const day = date ?? today;
   const isToday = day === today;
@@ -37,6 +40,8 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
   const [review, setReview] = useState(false);
   const [goals, setGoals] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [writing, setWriting] = useState<{ edit?: Post } | null>(null);
+  const lines = useLoad(async () => (isToday ? linesOn(me.id, day) : []), [isToday, me.id, day]);
 
   // The "+" beside the tab bar asks this screen to open the quick add.
   useEffect(() => {
@@ -158,9 +163,9 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
             </motion.section>
           )}
 
-          {isSunday(day) && (
-            <OpenRow icon={<Target className="size-[1.125rem]" />} title="Next week's goals" sub="Three things that would make it a good week" onClick={() => setGoals(true)} />
-          )}
+          {isToday && <LinesCard lines={lines.data ?? []} onWrite={() => setWriting({})} onOpen={(p) => setWriting({ edit: p })} />}
+
+          {isToday && <GoalsRow me={me} onClick={() => setGoals(true)} />}
 
           {!full.blocks.length && (
             <motion.section variants={stagger.item} className="glass flex flex-col items-start gap-3 rounded-card p-5">
@@ -212,7 +217,17 @@ export function Today({ me, date }: { me: Profile; date?: string }) {
             onDeleted={(id) => setFull({ ...full, tasks: full.tasks.filter((x) => x.id !== id) })}
           />
           <ReviewSheet open={review} onOpenChange={setReview} full={full} onChange={setFull} />
-          <GoalsSheet open={goals} onOpenChange={setGoals} me={me} sunday={day} />
+          <GoalsSheet open={goals} onOpenChange={setGoals} me={me} day={day} />
+          <PostSheet
+            open={!!writing}
+            onOpenChange={(o) => !o && setWriting(null)}
+            me={me}
+            team={team}
+            people={people}
+            topics={[]}
+            edit={writing?.edit}
+            onSaved={() => lines.reload()}
+          />
         </>
       )}
     </Screen>
@@ -232,23 +247,123 @@ function OpenRow({ icon, title, sub, onClick }: { icon: React.ReactNode; title: 
   );
 }
 
-function GoalsSheet({ open, onOpenChange, me, sunday }: { open: boolean; onOpenChange: (o: boolean) => void; me: Profile; sunday: string }) {
-  const week = weekStart(addDays(sunday, 1));
-  const { data } = useLoad(async () => (open ? getWeekGoals(me.id, week) : ''), [open, week, me.id]);
-  const [value, setValue] = useState<string | null>(null);
+/** My lines for today, as the team sees them on the Board. Mornings ask for an aim, evenings for what I learned. */
+function LinesCard({ lines, onWrite, onOpen }: { lines: Post[]; onWrite: () => void; onOpen: (p: Post) => void }) {
+  const ask = kindForHour(new Date().getHours());
+  if (!lines.length)
+    return (
+      <OpenRow
+        icon={ask === 'aim' ? <Target className="size-[1.125rem]" /> : <BookOpen className="size-[1.125rem]" />}
+        title={ask === 'aim' ? "Today's aim" : 'What I learned'}
+        sub="Shared with your team on the Board"
+        onClick={onWrite}
+      />
+    );
+  const Icon = { aim: Target, learned: BookOpen, cheer: HandHeart, reply: Target };
+  return (
+    <motion.section variants={stagger.item} className="glass overflow-hidden rounded-card">
+      <ul className="divide-y divide-line">
+        {lines.map((p) => {
+          const I = Icon[p.kind];
+          return (
+            <li key={p.id}>
+              <button type="button" onClick={() => onOpen(p)} className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-fill/60 active:bg-fill">
+                <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-fill text-tint">
+                  <I className="size-[1.125rem]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="label-case block text-sub font-medium text-ink-2">{p.kind === 'reply' ? 'Reply' : KIND_LABEL[p.kind]}</span>
+                  <span className="line-clamp-3 block text-body">{p.body}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <button type="button" onClick={onWrite} className="flex h-11 w-full items-center gap-2 border-t border-line px-4 text-body font-semibold text-tint hover:bg-fill/60">
+        <Plus className="size-[1.125rem]" /> {ask === 'aim' ? 'Add a line' : 'What I learned'}
+      </button>
+    </motion.section>
+  );
+}
+
+/** The week's and month's goals, in one row on Today. On Sundays the week means next week. */
+function GoalsRow({ me, onClick }: { me: Profile; onClick: () => void }) {
+  const today = todayISO();
+  const week = isSunday(today) ? weekStart(addDays(today, 1)) : weekStart(today);
+  const { data } = useLoad(async () => {
+    const [w, m] = await Promise.all([getWeekGoals(me.id, week), getMonthGoals(me.id, monthStart(today))]);
+    return { w, m };
+  }, [me.id, week, today]);
+  const first = (data?.w || data?.m || '').split('\n').find((l) => l.trim());
+  return (
+    <OpenRow
+      icon={<Flag className="size-[1.125rem]" />}
+      title="Goals"
+      sub={first ?? (isSunday(today) ? "Set next week's goals" : 'This week and this month')}
+      onClick={onClick}
+    />
+  );
+}
+
+function GoalsSheet({ open, onOpenChange, me, day }: { open: boolean; onOpenChange: (o: boolean) => void; me: Profile; day: string }) {
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  const sunday = isSunday(day);
+  const week = sunday ? weekStart(addDays(day, 1)) : weekStart(day);
+  const month = monthStart(day);
+  const { data } = useLoad(async () => {
+    if (!open) return null;
+    const [w, m] = await Promise.all([getWeekGoals(me.id, week), getMonthGoals(me.id, month)]);
+    return { w, m };
+  }, [open, week, month, me.id]);
+  const [local, setLocal] = useState<{ w?: string; m?: string }>({});
+  useEffect(() => {
+    if (open) setLocal({});
+  }, [open]);
   return (
     <Sheet
       open={open}
       onOpenChange={onOpenChange}
-      title="Next week's goals"
+      title="Goals"
       right={
         <Button variant="plain" size="bare" className="font-semibold" onClick={() => onOpenChange(false)}>
           Done
         </Button>
       }
     >
-      <div className="pb-2">
-        <AutoField label="Three goals" placeholder="One per line" value={value ?? data ?? ''} onLocal={setValue} onSave={(v) => saveWeekGoals(me.id, week, v)} rows={4} />
+      <div className="space-y-4 pb-2">
+        <Segment
+          label="Period"
+          value={period}
+          onChange={setPeriod}
+          options={[
+            { value: 'week', label: sunday ? 'Next week' : 'This week' },
+            { value: 'month', label: 'This month' },
+          ]}
+        />
+        {data &&
+          (period === 'week' ? (
+            <AutoField
+              key="week"
+              label={rangeLabel(week, addDays(week, 6))}
+              placeholder="One per line"
+              value={local.w ?? data.w}
+              onLocal={(v) => setLocal({ ...local, w: v })}
+              onSave={(v) => saveWeekGoals(me.id, week, v)}
+              rows={5}
+            />
+          ) : (
+            <AutoField
+              key="month"
+              label={monthLabel(month)}
+              placeholder="One per line"
+              value={local.m ?? data.m}
+              onLocal={(v) => setLocal({ ...local, m: v })}
+              onSave={(v) => saveMonthGoals(me.id, month, v)}
+              rows={5}
+            />
+          ))}
+        <p className="px-1 text-sub text-ink-2">Your team sees these when you share your days.</p>
       </div>
     </Sheet>
   );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { faceUrl } from '@/lib/avatars';
 import { cn, rem } from '@/lib/utils';
@@ -64,5 +64,27 @@ export function AvatarCircles({ people, max = 5, size = 38 }: { people: Person[]
         </span>
       )}
     </div>
+  );
+}
+
+/** A small green dot on a picture: this person has the app open right now. */
+export function HereDot({ on, children, size = 'sm' }: { on: boolean; children: ReactNode; size?: 'sm' | 'md' }) {
+  return (
+    <span className="relative inline-flex shrink-0">
+      {children}
+      {on && (
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 520, damping: 26 }}
+          aria-label="Here now"
+          role="img"
+          className={cn(
+            'absolute right-0 bottom-0 rounded-full bg-success ring-2 ring-[var(--glass-strong)]',
+            size === 'md' ? 'size-3.5' : 'size-2.5',
+          )}
+        />
+      )}
+    </span>
   );
 }

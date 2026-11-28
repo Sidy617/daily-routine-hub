@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ALargeSmall, Archive, Camera, Check as CheckIcon, ChevronLeft, Eye, History, ImageUp, LogOut, Palette, Plus, Sparkles, Trash2, Users } from 'lucide-react';
+import { ALargeSmall, Archive, Camera, Check as CheckIcon, ChevronLeft, Eye, History, ImageUp, LogOut, Palette, Plus, Radio, Sparkles, Trash2, Users } from 'lucide-react';
 import { clearMyPhoto, db, getBlocks, importDays, saveRoutine, setMyPhoto, updateProfile } from '@/lib/api';
 import { CHARACTERS, CHARACTER_NAMES, TONES, TONE_SWATCHES, avatarKey, avatarUrl, splitKey, squarePhoto } from '@/lib/avatars';
 import { PERSON_COLOURS, TILE } from '@/lib/colours';
@@ -163,6 +163,13 @@ export function Me({ me, team, onProfile, openDay }: { me: Profile; team: Team; 
               label="Show me on the sign-in page"
               sub="Photo, name and what you work on"
               control={<Switch checked={me.show_on_login} onCheckedChange={(v) => patch({ show_on_login: v }, '')} />}
+            />
+            <Row
+              icon={<Radio />}
+              tile={TILE.green}
+              label="Show when I'm here"
+              sub="A dot on your picture while the app is open"
+              control={<Switch checked={me.show_here} onCheckedChange={(v) => patch({ show_here: v }, '')} />}
             />
           </Group>
         </motion.div>

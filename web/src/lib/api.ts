@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_KEY, SUPABASE_URL } from './config';
-import type { Block, BlockTotal, Day, DayBlock, DayTotal, FullDay, LoginFace, Profile, Status, Task, Team } from './types';
+import type { Block, BlockTotal, Day, DayBlock, DayTotal, FullDay, LoginFace, Pin, Post, PostKind, Profile, Reaction, ReactionKind, Status, Task, Team } from './types';
 import type { ImportedDay } from './importOld';
 import { planIsEmpty, planRoutineChange } from './routine';
 
@@ -16,7 +16,7 @@ function must<T>(res: { data: T | null; error: { message: string } | null }): T 
 // People and teams -------------------------------------------------------
 
 export async function getProfile(id: string): Promise<Profile | null> {
-  return must(await db.from('profiles').select('id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login').eq('id', id).maybeSingle());
+  return must(await db.from('profiles').select('id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login,show_here').eq('id', id).maybeSingle());
 }
 
 export async function updateProfile(id: string, patch: Partial<Omit<Profile, 'id'>>) {
@@ -32,7 +32,7 @@ export async function myTeam(userId: string): Promise<Team | null> {
 
 export async function teamPeople(teamId: string): Promise<Profile[]> {
   const rows = must(
-    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login)').eq('team_id', teamId).order('joined_at'),
+    await db.from('team_members').select('profiles(id,name,colour,theme,share_progress,photo_url,avatar,focus,show_on_login,show_here)').eq('team_id', teamId).order('joined_at'),
   ) as unknown as { profiles: Profile | null }[];
   return rows.map((r) => r.profiles).filter((p): p is Profile => !!p);
 }
@@ -203,6 +203,77 @@ export async function getWeekGoals(userId: string, weekStart: string): Promise<s
 
 export async function saveWeekGoals(userId: string, weekStart: string, goals: string) {
   must(await db.from('week_goals').upsert({ user_id: userId, week_start: weekStart, goals }));
+}
+
+export async function getMonthGoals(userId: string, monthStart: string): Promise<string> {
+  const row = must(await db.from('month_goals').select('goals').eq('user_id', userId).eq('month_start', monthStart).maybeSingle()) as
+    | { goals: string }
+    | null;
+  return row?.goals ?? '';
+}
+
+export async function saveMonthGoals(userId: string, monthStart: string, goals: string) {
+  must(await db.from('month_goals').upsert({ user_id: userId, month_start: monthStart, goals }));
+}
+
+// The Board ------------------------------------------------------------------
+
+/** The team's latest lines and replies, newest first. */
+export async function boardPosts(teamId: string): Promise<Post[]> {
+  return must(
+    await db.from('posts').select('id,team_id,user_id,date,kind,body,parent_id,people,topics,created_at,edited_at').eq('team_id', teamId).order('created_at', { ascending: false }).limit(300),
+  );
+}
+
+export async function boardPins(teamId: string): Promise<Pin[]> {
+  return must(await db.from('post_pins').select('id,post_id,team_id,pinned_by,pinned_at').eq('team_id', teamId).order('pinned_at', { ascending: false }));
+}
+
+export async function boardReactions(postIds: string[]): Promise<Reaction[]> {
+  if (!postIds.length) return [];
+  return must(await db.from('post_reactions').select('id,post_id,user_id,kind').in('post_id', postIds));
+}
+
+/** Lines (not replies) the team wrote for one day, oldest first. */
+export async function teamLinesOn(teamId: string, date: string): Promise<Post[]> {
+  return must(
+    await db.from('posts').select('id,team_id,user_id,date,kind,body,parent_id,people,topics,created_at,edited_at').eq('team_id', teamId).eq('date', date).is('parent_id', null).order('created_at'),
+  );
+}
+
+/** One person's lines for one day, oldest first. */
+export async function linesOn(userId: string, date: string): Promise<Post[]> {
+  return must(
+    await db.from('posts').select('id,team_id,user_id,date,kind,body,parent_id,people,topics,created_at,edited_at').eq('user_id', userId).eq('date', date).is('parent_id', null).order('created_at'),
+  );
+}
+
+export async function addPost(p: { team_id: string; date: string; kind: PostKind; body: string; parent_id?: string | null; people?: string[]; topics?: string[] }): Promise<Post> {
+  return must(await db.from('posts').insert(p).select('*').single());
+}
+
+export async function editPost(id: string, patch: Pick<Post, 'body' | 'people' | 'topics'>): Promise<Post> {
+  return must(await db.from('posts').update(patch).eq('id', id).select('*').single());
+}
+
+export async function deletePost(id: string) {
+  must(await db.from('posts').delete().eq('id', id));
+}
+
+export async function pinPost(postId: string, teamId: string) {
+  must(await db.from('post_pins').insert({ post_id: postId, team_id: teamId }));
+}
+
+export async function unpinPost(postId: string) {
+  must(await db.from('post_pins').delete().eq('post_id', postId));
+}
+
+export async function react(postId: string, kind: ReactionKind) {
+  must(await db.from('post_reactions').insert({ post_id: postId, kind }));
+}
+
+export async function unreact(postId: string, userId: string, kind: ReactionKind) {
+  must(await db.from('post_reactions').delete().eq('post_id', postId).eq('user_id', userId).eq('kind', kind));
 }
 
 // Carrying unfinished tasks over --------------------------------------------
